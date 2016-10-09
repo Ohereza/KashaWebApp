@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+.loader {
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #FF4081;
+  border-right: 16px solid #FF4081;
+  border-bottom: 16px solid Grey;
+  border-left: 16px solid #FF4081;
+  width: 100px;
+  height: 100px;
+  margin-top: 45%;
+  margin-left: 30%;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+}
+
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+</style>
+</head>
+<body>
+
+<h2> Loading .... </h2>
+<p><strong>Note:</strong> Please check your internet connectivity.</p>
+
+<div class="loader"></div>
+
+</body>
+</html>
