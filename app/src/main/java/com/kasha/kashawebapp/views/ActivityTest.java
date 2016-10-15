@@ -22,6 +22,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
@@ -35,6 +36,9 @@ import com.kasha.kashawebapp.helper.LocationUpdater;
 import com.kasha.kashawebapp.helper.LoginResponse;
 import com.kasha.kashawebapp.interfaces.PdsAPI;
 
+import java.text.DateFormat;
+import java.util.Date;
+
 import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -47,13 +51,23 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 
 public class ActivityTest extends AppCompatActivity implements
-        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
+        LocationListener {
 
     private static final int REQUEST_ACCESS_FINE_LOCATION = 0;
     private GoogleApiClient mGoogleApiClient = null;
     private Location mLastLocation = null;
-    private EditText mLatitudeText;
-    private EditText mLongitudeText;
+    private EditText mLatitudeTextView;
+    private EditText mLongitudeTextView;
+    private EditText mLastUpdateTimeTextView;
+
+    private Location mCurrentLocation;
+    private String mLastUpdateTime;
+
+    private LocationRequest mLocationRequest;
+    private Boolean mRequestingLocationUpdates = true;
+
+
     private Button sendToServerButton;
     ClearableCookieJar cookieJar;
     OkHttpClient okHttpClient;
@@ -67,8 +81,9 @@ public class ActivityTest extends AppCompatActivity implements
         setContentView(R.layout.activity_test);
 
 
-        mLatitudeText = (EditText) findViewById(R.id.latitude_edit_text);
-        mLongitudeText = (EditText) findViewById(R.id.longitude_edit_text);
+        mLatitudeTextView = (EditText) findViewById(R.id.latitude_edit_text);
+        mLongitudeTextView = (EditText) findViewById(R.id.longitude_edit_text);
+        mLastUpdateTimeTextView = (EditText) findViewById(R.id.last_update_time);
         sendToServerButton = (Button) findViewById(R.id.send_button);
 
         int permissionCheck = ContextCompat.checkSelfPermission(getApplicationContext(),
@@ -152,7 +167,7 @@ public class ActivityTest extends AppCompatActivity implements
     }
 
     protected void createLocationRequest() {
-        LocationRequest mLocationRequest = new LocationRequest();
+        mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(10000);
         mLocationRequest.setFastestInterval(5000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -230,11 +245,40 @@ public class ActivityTest extends AppCompatActivity implements
             mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
                     mGoogleApiClient);
                 if (mLastLocation != null) {
-                    mLatitudeText.setText(String.valueOf(mLastLocation.getLatitude()));
-                    mLongitudeText.setText(String.valueOf(mLastLocation.getLongitude()));
+                    mLatitudeTextView.setText(String.valueOf(mLastLocation.getLatitude()));
+                    mLongitudeTextView.setText(String.valueOf(mLastLocation.getLongitude()));
                 }
         }
+
+        if (mRequestingLocationUpdates) {
+            startLocationUpdates();
+        }
     }
+
+    protected void startLocationUpdates() {
+        int permissionCheck = ContextCompat.checkSelfPermission(getApplicationContext(),
+                android.Manifest.permission.ACCESS_FINE_LOCATION);
+        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+            LocationServices.FusedLocationApi.requestLocationUpdates(
+                    mGoogleApiClient, mLocationRequest, this);
+        }
+    }
+
+
+    @Override
+    public void onLocationChanged(Location location) {
+        mCurrentLocation = location;
+        mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
+        updateUI();
+    }
+
+    private void updateUI() {
+        mLatitudeTextView.setText(String.valueOf(mCurrentLocation.getLatitude()));
+        mLongitudeTextView.setText(String.valueOf(mCurrentLocation.getLongitude()));
+        mLastUpdateTimeTextView.setText(mLastUpdateTime);
+    }
+
+
 
     protected void onStart() {
         mGoogleApiClient.connect();
