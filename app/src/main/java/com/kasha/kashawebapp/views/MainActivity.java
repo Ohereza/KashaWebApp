@@ -1,4 +1,4 @@
-package com.kasha.kashawebapp;
+package com.kasha.kashawebapp.views;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -18,6 +18,8 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
+
+import com.kasha.kashawebapp.R;
 
 import static android.widget.Toast.LENGTH_SHORT;
 
@@ -97,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_fullscreen);
+        setContentView(R.layout.activity_main);
 
 
         mVisible = true;
