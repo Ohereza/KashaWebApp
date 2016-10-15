@@ -1,8 +1,10 @@
 package com.kasha.kashawebapp.views;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBar;
@@ -10,15 +12,18 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.webkit.WebResourceError;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
 
 import com.kasha.kashawebapp.R;
 
+import static android.widget.Toast.LENGTH_SHORT;
+
 public class MainActivity extends AppCompatActivity {
-
-
 
     /**
      * Whether or not the system UI should be auto-hidden after
@@ -103,10 +108,10 @@ public class MainActivity extends AppCompatActivity {
         webSettings.setJavaScriptEnabled(true);
 
 
-        myWebView.getSettings().setAppCacheMaxSize( 5 * 1024 * 1024 ); // 5MB
-        myWebView.getSettings().setAppCachePath( getApplicationContext().getCacheDir().getAbsolutePath() );
+        //myWebView.getSettings().setAppCacheMaxSize( 5 * 1024 * 1024 ); // 5MB
+        //myWebView.getSettings().setAppCachePath( getApplicationContext().getCacheDir().getAbsolutePath() );
         myWebView.getSettings().setAllowFileAccess( true );
-        myWebView.getSettings().setAppCacheEnabled( true );
+        //myWebView.getSettings().setAppCacheEnabled( true );
         myWebView.getSettings().setJavaScriptEnabled( true );
         myWebView.getSettings().setCacheMode( WebSettings.LOAD_DEFAULT ); // load online by default
 
@@ -114,29 +119,73 @@ public class MainActivity extends AppCompatActivity {
             myWebView.getSettings().setCacheMode( WebSettings.LOAD_CACHE_ELSE_NETWORK );
         }
 
-        //myWebView.loadUrl("ec2-52-57-159-28.eu-central-1.compute.amazonaws.com");
         myWebView.loadUrl("http://ec2-52-57-159-28.eu-central-1.compute.amazonaws.com/");
+        //myWebView.loadUrl("http://www.google.com/");
 
         myWebView.setWebViewClient(new WebViewClient() {
+
+            @SuppressWarnings("deprecation")
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
+
+                //multiple split to ensure even if the url format change it doesn't break easily
+                String[] linkContent = url.split("\\/");
+                String[] linkContent1 = (linkContent[linkContent.length-1]). split("\\?");
+                String[] linkContent2 = (linkContent1[linkContent1.length-1]).split("=");
+                String orderKey = linkContent2[linkContent2.length-1];
+
+                if(orderKey.startsWith("wc_order_")) {
+                    Toast toast = Toast.makeText(getApplicationContext(), orderKey, LENGTH_SHORT);
+                    toast.show();
+
+//                    Intent locationServiceIntent = new Intent(this,ListenLocationService.class);
+//                    locationServiceIntent.putExtra("orderKey", orderKey);
+//                    startService(locationServiceIntent);
+
+                }
+
                 view.loadUrl(url);
                 return false;
             }
 
+            @TargetApi(Build.VERSION_CODES.N)
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                String url = request.getUrl().toString();
+
+                //multiple split to ensure even if the url format change it doesn't break easily
+                String[] linkContent = url.split("\\/");
+                String[] linkContent1 = (linkContent[linkContent.length-1]). split("\\?");
+                String[] linkContent2 = (linkContent1[linkContent1.length-1]).split("=");
+                String orderKey = linkContent2[linkContent2.length-1];
+
+                if(orderKey.startsWith("wc_order_")) {
+                    Toast toast = Toast.makeText(getApplicationContext(), orderKey, LENGTH_SHORT);
+                    toast.show();
+//                    Intent locationServiceIntent = new Intent(this,ListenLocationService.class);
+//                    locationServiceIntent.putExtra("orderKey", orderKey);
+//                    startService(locationServiceIntent);
+                }
+
+                view.loadUrl(url);
+                return true;
+            }
+
+            @SuppressWarnings("deprecation")
+            @Override
             public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
                 myWebView.loadUrl("file:///android_asset/error.html");
+            }
 
+            @TargetApi(android.os.Build.VERSION_CODES.M)
+            @Override
+            public void onReceivedError(WebView view, WebResourceRequest req, WebResourceError rerr) {
+                myWebView.loadUrl("file:///android_asset/error.html");
             }
 
         });
 
-
-
-
     }
-
-
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -159,12 +208,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-
-        // Trigger the initial hide() shortly after the activity has been
-        // created, to briefly hint to the user that UI controls
-        // are available.
         delayedHide(100);
     }
+
 
     private void toggle() {
         if (mVisible) {
@@ -199,10 +245,6 @@ public class MainActivity extends AppCompatActivity {
         mHideHandler.postDelayed(mShowPart2Runnable, UI_ANIMATION_DELAY);
     }
 
-    /**
-     * Schedules a call to hide() in [delay] milliseconds, canceling any
-     * previously scheduled calls.
-     */
     private void delayedHide(int delayMillis) {
         mHideHandler.removeCallbacks(mHideRunnable);
         mHideHandler.postDelayed(mHideRunnable, delayMillis);
@@ -214,5 +256,4 @@ public class MainActivity extends AppCompatActivity {
     NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
     return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
-
 }
