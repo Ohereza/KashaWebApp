@@ -168,8 +168,9 @@ public class ActivityTest extends AppCompatActivity implements
 
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(10000);
-        mLocationRequest.setFastestInterval(5000);
+/*        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(5000);*/
+        mLocationRequest.setSmallestDisplacement(100);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
