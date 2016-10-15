@@ -135,6 +135,11 @@ public class MainActivity extends AppCompatActivity {
                 if(orderKey.startsWith("wc_order_")) {
                     Toast toast = Toast.makeText(getApplicationContext(), orderKey, LENGTH_SHORT);
                     toast.show();
+
+//                    Intent locationServiceIntent = new Intent(this,ListenLocationService.class);
+//                    locationServiceIntent.putExtra("orderKey", orderKey);
+//                    startService(locationServiceIntent);
+
                 }
 
                 view.loadUrl(url);
@@ -155,6 +160,9 @@ public class MainActivity extends AppCompatActivity {
                 if(orderKey.startsWith("wc_order_")) {
                     Toast toast = Toast.makeText(getApplicationContext(), orderKey, LENGTH_SHORT);
                     toast.show();
+//                    Intent locationServiceIntent = new Intent(this,ListenLocationService.class);
+//                    locationServiceIntent.putExtra("orderKey", orderKey);
+//                    startService(locationServiceIntent);
                 }
 
                 view.loadUrl(url);
