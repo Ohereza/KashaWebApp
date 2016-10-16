@@ -107,12 +107,6 @@ public class ActivityTest extends AppCompatActivity implements
 
         createLocationRequest();
 
-
-
-
-
-
-
         sendToServerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -203,37 +197,6 @@ public class ActivityTest extends AppCompatActivity implements
                 }
             }
         });
-
-      /*  result.setResultCallback(new ResultCallback<LocationSettingsResult>()) {
-            @Override
-            public void onResult(LocationSettingsResult result) {
-                final Status status = result.getStatus();
-                final LocationSettingsStates = result.getLocationSettingsStates();
-                switch (status.getStatusCode()) {
-                    case LocationSettingsStatusCodes.SUCCESS:
-                        // All location settings are satisfied. The client can
-                        // initialize location requests here.
-                        break;
-                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                        // Location settings are not satisfied, but this can be fixed
-                        // by showing the user a dialog.
-                        try {
-                            // Show the dialog by calling startResolutionForResult(),
-                            // and check the result in onActivityResult().
-                            status.startResolutionForResult(
-                                    OuterClass.this,
-                                    REQUEST_CHECK_SETTINGS);
-                        } catch (SendIntentException e) {
-                            // Ignore the error.
-                        }
-                        break;
-                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                        // Location settings are not satisfied. However, we have no way
-                        // to fix the settings so we won't show the dialog.
-                        break;
-                }
-            }
-        });*/
 
     }
 
