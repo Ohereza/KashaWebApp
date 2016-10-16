@@ -69,10 +69,10 @@ public class ActivityTest extends AppCompatActivity implements
 
 
     private Button sendToServerButton;
-    ClearableCookieJar cookieJar;
-    OkHttpClient okHttpClient;
-    Retrofit retrofit;
-    PdsAPI pdsAPI;
+    private ClearableCookieJar cookieJar;
+    private OkHttpClient okHttpClient;
+    private Retrofit retrofit;
+    private PdsAPI pdsAPI;
 
 
     @Override
