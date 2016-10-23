@@ -41,7 +41,7 @@ import retrofit2.Retrofit;
 
 public class ActivityTest extends AppCompatActivity
         implements GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener{
+        GoogleApiClient.OnConnectionFailedListener {
 
     private static final int REQUEST_ACCESS_FINE_LOCATION = 0;
     private GoogleApiClient mGoogleApiClient = null;
@@ -141,9 +141,9 @@ public class ActivityTest extends AppCompatActivity
 
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
-/*        mLocationRequest.setInterval(10000);
-        mLocationRequest.setFastestInterval(5000);*/
-        mLocationRequest.setSmallestDisplacement(100);
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(5000);
+        //mLocationRequest.setSmallestDisplacement(100);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()

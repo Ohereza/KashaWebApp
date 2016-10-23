@@ -59,6 +59,8 @@ public class LocatorService
 
     private Boolean mRequestingLocationUpdates = true;
 
+    private String orderKey;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -85,6 +87,12 @@ public class LocatorService
             locationWebService.execute(mLastLocation);
         }
 
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        orderKey = intent.getStringExtra("orderKey");
+        return START_NOT_STICKY;
     }
 
 
@@ -206,7 +214,7 @@ public class LocatorService
                 public void onResponse(Call<LoginResponse> call,
                                        Response<LoginResponse> response){
 
-                    pdsAPI.updateLocation( new LocationUpdater("kasha899","Client",
+                    pdsAPI.updateLocation( new LocationUpdater(orderKey,"Client",
                             String.valueOf(mCurrentLocation.getLongitude()),
                             String.valueOf(mCurrentLocation.getLatitude()))).enqueue(
                             new Callback<LocationUpdateResponse>() {
@@ -228,7 +236,6 @@ public class LocatorService
 
                 @Override
                 public void onFailure(Call<LoginResponse> call, Throwable t) {
-
                 }
             });
 

@@ -2,11 +2,19 @@ package com.kasha.kashawebapp.views;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.content.Intent;
+import android.content.IntentSender;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
@@ -19,11 +27,32 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResult;
+import com.google.android.gms.location.LocationSettingsStates;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.kasha.kashawebapp.R;
+import com.kasha.kashawebapp.services.LocatorService;
 
 import static android.widget.Toast.LENGTH_SHORT;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+        implements GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener {
+
+    private static final int REQUEST_ACCESS_FINE_LOCATION = 0;
+    private GoogleApiClient mGoogleApiClient = null;
+    private Location mLastLocation = null;
+    private LocationRequest mLocationRequest;
+    private String orderKey;
+
 
     /**
      * Whether or not the system UI should be auto-hidden after
@@ -132,11 +161,32 @@ public class MainActivity extends AppCompatActivity {
                 String[] linkContent = url.split("\\/");
                 String[] linkContent1 = (linkContent[linkContent.length-1]). split("\\?");
                 String[] linkContent2 = (linkContent1[linkContent1.length-1]).split("=");
-                String orderKey = linkContent2[linkContent2.length-1];
+                orderKey = linkContent2[linkContent2.length-1];
 
                 if(orderKey.startsWith("wc_order_")) {
                     Toast toast = Toast.makeText(getApplicationContext(), orderKey, LENGTH_SHORT);
                     toast.show();
+                    // Build the alert dialog
+ /*                   AlertDialog.Builder builder = new AlertDialog.Builder(getParent());
+                    builder.setTitle("NOTICE");
+                    builder.setMessage("Using the Premium Delivery service will enable GPS " +
+                            "and other Location Services. " +
+                            "This in order to collect your location and deliver your package where you are. ");
+
+                    builder.setNegativeButton("Disagree", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            promptDropOffPoint();
+                        }
+                    });
+                    builder.setPositiveButton("Agree", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialogInterface, int i) {*/
+                            trackUserLocation();
+                        /*}
+                    });
+
+                    Dialog alertDialog = builder.create();
+                    alertDialog.setCanceledOnTouchOutside(false);
+                    alertDialog.show();*/
 
 //                    Intent locationServiceIntent = new Intent(this,ListenLocationService.class);
 //                    locationServiceIntent.putExtra("orderKey", orderKey);
@@ -157,11 +207,34 @@ public class MainActivity extends AppCompatActivity {
                 String[] linkContent = url.split("\\/");
                 String[] linkContent1 = (linkContent[linkContent.length-1]). split("\\?");
                 String[] linkContent2 = (linkContent1[linkContent1.length-1]).split("=");
-                String orderKey = linkContent2[linkContent2.length-1];
+                orderKey = linkContent2[linkContent2.length-1];
 
                 if(orderKey.startsWith("wc_order_")) {
                     Toast toast = Toast.makeText(getApplicationContext(), orderKey, LENGTH_SHORT);
                     toast.show();
+
+                    // Build the alert dialog
+                   /* AlertDialog.Builder builder = new AlertDialog.Builder(getParent());
+                    builder.setTitle("NOTICE");
+                    builder.setMessage("Using the Premium Delivery service will enable GPS " +
+                            "and other Location Services. " +
+                            "This in order to collect your location and deliver your package where you are. ");
+
+                    builder.setNegativeButton("Disagree", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            promptDropOffPoint();
+                        }
+                    });
+                    builder.setPositiveButton("Agree", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialogInterface, int i) {*/
+                            trackUserLocation();
+                        /*}
+                    });
+
+                    Dialog alertDialog = builder.create();
+                    alertDialog.setCanceledOnTouchOutside(false);
+                    alertDialog.show();
+*/
 
 
 //                    Intent locationServiceIntent = new Intent(this,ListenLocationService.class);
@@ -186,6 +259,81 @@ public class MainActivity extends AppCompatActivity {
             }
 
         });
+
+    }
+
+    protected void trackUserLocation(){
+
+        // Programmatically request ACCESS_FINE_LOCATION PERMISSION if missing
+        int permissionCheck = ContextCompat.checkSelfPermission(getApplicationContext(),
+                android.Manifest.permission.ACCESS_FINE_LOCATION);
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(getParent(),
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                    REQUEST_ACCESS_FINE_LOCATION);
+        }
+
+        // Create an instance of GoogleAPIClient.
+        if (mGoogleApiClient == null) {
+            mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .build();
+        }
+
+        mGoogleApiClient.connect();
+        createLocationRequest();
+
+        // Locator service testing:
+        Intent locationServiceIntent = new Intent(this,LocatorService.class);
+        locationServiceIntent.putExtra("orderKey", orderKey);
+        startService(locationServiceIntent);
+    }
+
+    protected void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(5000);
+        //mLocationRequest.setSmallestDisplacement(100);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                .addLocationRequest(mLocationRequest);
+
+        final PendingResult<LocationSettingsResult> result =
+                LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient,
+                        builder.build());
+
+        result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
+            @Override
+            public void onResult(@NonNull LocationSettingsResult locationSettingsResult) {
+                final Status status = locationSettingsResult.getStatus();
+                final LocationSettingsStates locationSettingsStates
+                        = locationSettingsResult.getLocationSettingsStates();
+
+                switch (status.getStatusCode()){
+                    case LocationSettingsStatusCodes.SUCCESS:
+                        break;
+                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                        try{
+                            status.startResolutionForResult(MainActivity.this,
+                                    1);
+
+                        }catch (IntentSender.SendIntentException e) {
+                            // Ignore the error.
+                        }
+                        break;
+                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                        break;
+                }
+            }
+        });
+
+    }
+
+    protected void promptDropOffPoint(){
+        Toast.makeText(getApplicationContext(),"Prompt drop-off point", Toast.LENGTH_LONG).show();
 
     }
 
@@ -257,5 +405,26 @@ public class MainActivity extends AppCompatActivity {
             = (ConnectivityManager) getSystemService(this.CONNECTIVITY_SERVICE);
     NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
     return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        int permissionCheck = ContextCompat.checkSelfPermission(getApplicationContext(),
+                android.Manifest.permission.ACCESS_FINE_LOCATION);
+        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                    mGoogleApiClient);
+        }
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
     }
 }
