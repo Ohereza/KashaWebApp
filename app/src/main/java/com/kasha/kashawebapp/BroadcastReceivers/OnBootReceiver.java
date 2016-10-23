@@ -11,6 +11,7 @@ public class OnBootReceiver extends BroadcastReceiver {
 
         if (intent.getAction().equals("android.intent.action.BOOT_COMPLETED")) {
             // on boot restart locator service
+            
 
         }
     }
