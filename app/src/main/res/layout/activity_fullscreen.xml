@@ -9,10 +9,26 @@
          is needed to present your content, e.g. VideoView, SurfaceView,
          TextureView, etc. -->
     <WebView
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/webview"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        />
+        tools:context="com.kasha.kashawebapp.views.MainActivity">
 
+
+    </WebView>
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fabMap"
+        android:background="@android:color/holo_green_dark"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:visibility="gone"
+        android:src="@drawable/ic_map_floating_icon"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_gravity="end|bottom"/>
+    <!--app:layout_anchorGravity="bottom|right|end"-->
 
 </FrameLayout>

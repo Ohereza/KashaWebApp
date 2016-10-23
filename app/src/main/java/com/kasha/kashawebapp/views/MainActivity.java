@@ -2,11 +2,13 @@ package com.kasha.kashawebapp.views;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
@@ -42,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
      * and a change of the status and navigation bar.
      */
     private WebView myWebView;
+    private FloatingActionButton fabMap;
     private static final int UI_ANIMATION_DELAY = 300;
     private final Handler mHideHandler = new Handler();
     private View mContentView;
@@ -104,6 +107,14 @@ public class MainActivity extends AppCompatActivity {
 
         mVisible = true;
         myWebView = (WebView) findViewById(R.id.webview);
+        fabMap = (FloatingActionButton) findViewById(R.id.fabMap);
+        fabMap.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent mapIntent = new Intent( MainActivity.this ,MapsActivity.class );
+                startActivity(mapIntent);
+            }
+        });
+
         WebSettings webSettings = myWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
 
@@ -137,6 +148,7 @@ public class MainActivity extends AppCompatActivity {
                 if(orderKey.startsWith("wc_order_")) {
                     Toast toast = Toast.makeText(getApplicationContext(), orderKey, LENGTH_SHORT);
                     toast.show();
+                    fabMap.setVisibility(View.VISIBLE);
 
 //                    Intent locationServiceIntent = new Intent(this,ListenLocationService.class);
 //                    locationServiceIntent.putExtra("orderKey", orderKey);
