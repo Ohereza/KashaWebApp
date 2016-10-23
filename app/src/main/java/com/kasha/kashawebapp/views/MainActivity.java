@@ -11,6 +11,7 @@ import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.FloatingActionButton;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -71,6 +72,7 @@ public class MainActivity extends AppCompatActivity
      * and a change of the status and navigation bar.
      */
     private WebView myWebView;
+    private FloatingActionButton fabMap;
     private static final int UI_ANIMATION_DELAY = 300;
     private final Handler mHideHandler = new Handler();
     private View mContentView;
@@ -133,6 +135,14 @@ public class MainActivity extends AppCompatActivity
 
         mVisible = true;
         myWebView = (WebView) findViewById(R.id.webview);
+        fabMap = (FloatingActionButton) findViewById(R.id.fabMap);
+        fabMap.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent mapIntent = new Intent( MainActivity.this ,MapsActivity.class );
+                startActivity(mapIntent);
+            }
+        });
+
         WebSettings webSettings = myWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
 
@@ -181,6 +191,7 @@ public class MainActivity extends AppCompatActivity
                     builder.setPositiveButton("Agree", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialogInterface, int i) {*/
                             trackUserLocation();
+                            fabMap.setVisibility(View.VISIBLE);
                         /*}
                     });
 
@@ -228,6 +239,7 @@ public class MainActivity extends AppCompatActivity
                     builder.setPositiveButton("Agree", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialogInterface, int i) {*/
                             trackUserLocation();
+                            fabMap.setVisibility(View.VISIBLE);
                         /*}
                     });
 

@@ -52,9 +52,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         LatLng umubano = new LatLng(-1.946288, 30.092149);
 
-        mMap.addMarker(new MarkerOptions().position(umubano).title("Umubano Hotel"));
+        //mMap.addMarker(new MarkerOptions().position(umubano).title("Umubano Hotel"));
 
-        mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         mMap.getUiSettings().setZoomControlsEnabled(true);
         //mMap.getUiSettings().setMapToolbarEnabled(true);
 
@@ -68,7 +68,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         Location loc = getMyLocation();
         LatLng myLoc = new LatLng(loc.getLatitude(), loc.getLongitude());
-        mMap.addMarker(new MarkerOptions().position(myLoc).title("My auto loc"));
+        //mMap.addMarker(new MarkerOptions().position(myLoc).title("My auto loc"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(myLoc));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLoc, 16.0f));
 
