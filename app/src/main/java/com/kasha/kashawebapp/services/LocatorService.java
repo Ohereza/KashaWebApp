@@ -10,7 +10,6 @@ import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
-import android.widget.Toast;
 
 import com.franmontiel.persistentcookiejar.ClearableCookieJar;
 import com.franmontiel.persistentcookiejar.PersistentCookieJar;
@@ -64,7 +63,7 @@ public class LocatorService
     @Override
     public void onCreate() {
         super.onCreate();
-        Toast.makeText(this, "on create LocatorService", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "on create LocatorService", Toast.LENGTH_SHORT).show();
 
         // Create an instance of GoogleAPIClient.
         if (mGoogleApiClient == null) {
@@ -81,8 +80,6 @@ public class LocatorService
 
         // send last known location to server
         if (mLastLocation != null) {
-            Toast.makeText(this, "last location: "+mLastLocation.getLatitude()
-                    +" "+mLastLocation.getLongitude(), Toast.LENGTH_SHORT).show();
             LocationWebService locationWebService = new LocationWebService();
             locationWebService.execute(mLastLocation);
         }
@@ -144,24 +141,22 @@ public class LocatorService
 
     @Override
     public void onLocationChanged(Location location) {
-        Toast.makeText(this, "OnLocation changed", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "OnLocation changed", Toast.LENGTH_SHORT).show();
         LocationWebService locationWebService = new LocationWebService();
         locationWebService.execute(location);
     }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        Toast.makeText(this, "on Connected LocatorService", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "on Connected LocatorService", Toast.LENGTH_SHORT).show();
         int permissionCheck = ContextCompat.checkSelfPermission(getApplicationContext(),
                 android.Manifest.permission.ACCESS_FINE_LOCATION);
         if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(this, "requesting the last known location", Toast.LENGTH_SHORT).show();
             mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
                     mGoogleApiClient);
         }
 
         if (mRequestingLocationUpdates) {
-            Toast.makeText(this, "set update location", Toast.LENGTH_SHORT).show();
             startLocationUpdates();
         }
     }
@@ -221,14 +216,14 @@ public class LocatorService
                                 @Override
                                 public void onResponse(Call<LocationUpdateResponse> call,
                                                        Response<LocationUpdateResponse> response){
-                                    Toast.makeText(getApplicationContext(),"Posting successfull",
-                                            Toast.LENGTH_LONG).show();
+                         /*           Toast.makeText(getApplicationContext(),"Posting successfull",
+                                            Toast.LENGTH_LONG).show();*/
                                 }
 
                                 @Override
                                 public void onFailure(Call<LocationUpdateResponse> call, Throwable t){
-                                    Toast.makeText(getApplicationContext(),"Posting unsuccessfull",
-                                            Toast.LENGTH_LONG).show();
+               /*                     Toast.makeText(getApplicationContext(),"Posting unsuccessfull",
+                                            Toast.LENGTH_LONG).show();*/
                                 }
                             }
                     );

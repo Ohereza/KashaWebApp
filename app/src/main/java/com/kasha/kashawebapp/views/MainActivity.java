@@ -11,13 +11,14 @@ import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.design.widget.FloatingActionButton;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -26,7 +27,6 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -42,12 +42,11 @@ import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.kasha.kashawebapp.R;
 import com.kasha.kashawebapp.services.LocatorService;
 
-import static android.widget.Toast.LENGTH_SHORT;
-
 public class MainActivity extends AppCompatActivity
         implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
 
+    private static final String TAG = "MainActivity";
     private static final int REQUEST_ACCESS_FINE_LOCATION = 0;
     private GoogleApiClient mGoogleApiClient = null;
     private Location mLastLocation = null;
@@ -174,8 +173,7 @@ public class MainActivity extends AppCompatActivity
                 orderKey = linkContent2[linkContent2.length-1];
 
                 if(orderKey.startsWith("wc_order_")) {
-                    Toast toast = Toast.makeText(getApplicationContext(), orderKey, LENGTH_SHORT);
-                    toast.show();
+                    Log.d(TAG, "new orderKey: "+orderKey);
                     // Build the alert dialog
  /*                   AlertDialog.Builder builder = new AlertDialog.Builder(getParent());
                     builder.setTitle("NOTICE");
@@ -199,12 +197,7 @@ public class MainActivity extends AppCompatActivity
                     alertDialog.setCanceledOnTouchOutside(false);
                     alertDialog.show();*/
 
-//                    Intent locationServiceIntent = new Intent(this,ListenLocationService.class);
-//                    locationServiceIntent.putExtra("orderKey", orderKey);
-//                    startService(locationServiceIntent);
-
                 }
-
                 view.loadUrl(url);
                 return false;
             }
@@ -221,8 +214,7 @@ public class MainActivity extends AppCompatActivity
                 orderKey = linkContent2[linkContent2.length-1];
 
                 if(orderKey.startsWith("wc_order_")) {
-                    Toast toast = Toast.makeText(getApplicationContext(), orderKey, LENGTH_SHORT);
-                    toast.show();
+                    Log.d(TAG, "new orderKey: "+orderKey);
 
                     // Build the alert dialog
                    /* AlertDialog.Builder builder = new AlertDialog.Builder(getParent());
@@ -249,9 +241,6 @@ public class MainActivity extends AppCompatActivity
 */
 
 
-//                    Intent locationServiceIntent = new Intent(this,ListenLocationService.class);
-//                    locationServiceIntent.putExtra("orderKey", orderKey);
-//                    startService(locationServiceIntent);
                 }
 
                 view.loadUrl(url);
@@ -301,9 +290,11 @@ public class MainActivity extends AppCompatActivity
         Intent locationServiceIntent = new Intent(this,LocatorService.class);
         locationServiceIntent.putExtra("orderKey", orderKey);
         startService(locationServiceIntent);
+
     }
 
     protected void createLocationRequest() {
+
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(10000);
         mLocationRequest.setFastestInterval(5000);
@@ -345,7 +336,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     protected void promptDropOffPoint(){
-        Toast.makeText(getApplicationContext(),"Prompt drop-off point", Toast.LENGTH_LONG).show();
+        Log.d(TAG, "Prompt drop-off point");
 
     }
 
