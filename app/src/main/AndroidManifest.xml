@@ -27,6 +27,16 @@
             android:theme="@style/FullscreenTheme"></activity>
 
 
+        <receiver
+            android:name=".views.BroadcastReceivers.OnBootReceiver"
+            android:enabled="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <service android:name=".services.LocatorService" android:process=":locator_service" />
+
     </application>
 
 </manifest>
