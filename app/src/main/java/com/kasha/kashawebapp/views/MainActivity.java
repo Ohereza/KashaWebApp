@@ -157,7 +157,8 @@ public class MainActivity extends AppCompatActivity
             myWebView.getSettings().setCacheMode( WebSettings.LOAD_CACHE_ELSE_NETWORK );
         }
 
-        myWebView.loadUrl("http://ec2-52-57-159-28.eu-central-1.compute.amazonaws.com/");
+        //myWebView.loadUrl("http://ec2-52-57-159-28.eu-central-1.compute.amazonaws.com/");
+        myWebView.loadUrl("http://ec2-52-29-162-226.eu-central-1.compute.amazonaws.com/");
         //myWebView.loadUrl("http://www.google.com/");
 
         myWebView.setWebViewClient(new WebViewClient() {

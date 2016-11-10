@@ -10,6 +10,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -23,6 +24,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.kasha.kashawebapp.R;
+
+import static android.widget.Toast.LENGTH_LONG;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
@@ -65,11 +68,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setMyLocationEnabled(true);
 
         Location loc = getMyLocation();
-        LatLng myLoc = new LatLng(loc.getLatitude(), loc.getLongitude());
-        //mMap.addMarker(new MarkerOptions().position(myLoc).title("My auto loc"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(myLoc));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLoc, 16.0f));
 
+        if(loc!= null) {
+            LatLng myLoc = new LatLng(loc.getLatitude(), loc.getLongitude());
+            //mMap.addMarker(new MarkerOptions().position(myLoc).title("My auto loc"));
+//            mMap.moveCamera(CameraUpdateFactory.newLatLng(myLoc));
+//            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLoc, 16.0f));
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(myLoc, 16.0f));
+        }
+//        else{
+//            Toast toast= Toast.makeText(this, "Loc is null 1st", LENGTH_LONG);
+//            toast.show();
+//            while(loc==null) {
+//                loc = getMyLocation();
+//                if(loc!= null) {
+//                    LatLng myLoc = new LatLng(loc.getLatitude(), loc.getLongitude());
+//                    //mMap.addMarker(new MarkerOptions().position(myLoc).title("My auto loc"));
+//                    mMap.moveCamera(CameraUpdateFactory.newLatLng(myLoc));
+//                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLoc, 16.0f));
+//                    break;
+//                }
+//                Toast ttoast= Toast.makeText(this, "Loc is null", LENGTH_LONG);
+//                ttoast.show();
+//            }
+//        }
     }
 
 
@@ -101,7 +123,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (mLastLocation != null) {
             Double lat = Double.valueOf(mLastLocation.getLatitude());
             Double lon = Double.valueOf(mLastLocation.getLongitude());
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lon), 14.0f));
+            //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lon), 14.0f));
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lon), 16.0f));
         }
     }
 
@@ -126,10 +149,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         double dLatitude = mLastLocation.getLatitude();
         double dLongitude = mLastLocation.getLongitude();
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(dLatitude, dLongitude)));
+
         marker = mMap.addMarker(new MarkerOptions().position(new LatLng(dLatitude, dLongitude)).title("My Location"));
         //.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(dLatitude, dLongitude), 12.0f));
+//        mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(dLatitude, dLongitude)));
+//        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(dLatitude, dLongitude), 12.0f));
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(dLatitude, dLongitude), 16.0f));
 
     }
 
@@ -153,6 +178,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Toast toast= Toast.makeText(this, "Permission denied", LENGTH_LONG);
+            toast.show();
             return null;
         }
         Location myLocation = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
