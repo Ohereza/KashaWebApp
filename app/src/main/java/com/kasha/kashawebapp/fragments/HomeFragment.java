@@ -1,23 +1,15 @@
 package com.kasha.kashawebapp.fragments;
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.content.pm.PackageManager;
-import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -29,21 +21,8 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsResult;
-import com.google.android.gms.location.LocationSettingsStates;
-import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.kasha.kashawebapp.R;
 import com.kasha.kashawebapp.services.LocatorService;
-import com.kasha.kashawebapp.views.MainActivityTest;
-import com.kasha.kashawebapp.views.MapsActivity;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -53,8 +32,7 @@ import com.kasha.kashawebapp.views.MapsActivity;
  * Use the {@link HomeFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class HomeFragment extends Fragment  implements GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener{
+public class HomeFragment extends Fragment {
         // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -68,9 +46,9 @@ public class HomeFragment extends Fragment  implements GoogleApiClient.Connectio
     private WebView kWebView;
 
     private static final int REQUEST_ACCESS_FINE_LOCATION = 0;
-    private GoogleApiClient mGoogleApiClient = null;
-    private Location mLastLocation = null;
-    private LocationRequest mLocationRequest;
+//    private GoogleApiClient mGoogleApiClient = null;
+//    private Location mLastLocation = null;
+//    private LocationRequest mLocationRequest;
     private String orderKey;
 
     private static final String TAG = "HomeTabbedActivity";
@@ -272,16 +250,16 @@ public class HomeFragment extends Fragment  implements GoogleApiClient.Connectio
         }
 
         // Create an instance of GoogleAPIClient.
-        if (mGoogleApiClient == null) {
-            mGoogleApiClient = new GoogleApiClient.Builder(getContext())
-                    .addConnectionCallbacks(this)
-                    .addOnConnectionFailedListener(this)
-                    .addApi(LocationServices.API)
-                    .build();
-        }
-
-        mGoogleApiClient.connect();
-        createLocationRequest();
+//        if (mGoogleApiClient == null) {
+//            mGoogleApiClient = new GoogleApiClient.Builder(getContext())
+//                    .addConnectionCallbacks(this)
+//                    .addOnConnectionFailedListener(this)
+//                    .addApi(LocationServices.API)
+//                    .build();
+//        }
+//
+//        mGoogleApiClient.connect();
+        //createLocationRequest();
 
         // Locator service testing:
         Intent locationServiceIntent = new Intent(getContext(),LocatorService.class);
@@ -290,46 +268,46 @@ public class HomeFragment extends Fragment  implements GoogleApiClient.Connectio
 
     }
 
-    protected void createLocationRequest() {
-
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(10000);
-        mLocationRequest.setFastestInterval(5000);
-        //mLocationRequest.setSmallestDisplacement(100);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-
-        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
-                .addLocationRequest(mLocationRequest);
-
-        final PendingResult<LocationSettingsResult> result =
-                LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient,
-                        builder.build());
-
-        result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
-            @Override
-            public void onResult(@NonNull LocationSettingsResult locationSettingsResult) {
-                final Status status = locationSettingsResult.getStatus();
-                final LocationSettingsStates locationSettingsStates
-                        = locationSettingsResult.getLocationSettingsStates();
-
-                switch (status.getStatusCode()){
-                    case LocationSettingsStatusCodes.SUCCESS:
-                        break;
-                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                        try{
-                            status.startResolutionForResult(getActivity(),1);
-
-                        }catch (IntentSender.SendIntentException e) {
-                            // Ignore the error.
-                        }
-                        break;
-                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                        break;
-                }
-            }
-        });
-
-    }
+//    protected void createLocationRequest() {
+//
+//        mLocationRequest = new LocationRequest();
+//        mLocationRequest.setInterval(10000);
+//        mLocationRequest.setFastestInterval(5000);
+//        //mLocationRequest.setSmallestDisplacement(100);
+//        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+//
+//        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+//                .addLocationRequest(mLocationRequest);
+//
+//        final PendingResult<LocationSettingsResult> result =
+//                LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient,
+//                        builder.build());
+//
+//        result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
+//            @Override
+//            public void onResult(@NonNull LocationSettingsResult locationSettingsResult) {
+//                final Status status = locationSettingsResult.getStatus();
+//                final LocationSettingsStates locationSettingsStates
+//                        = locationSettingsResult.getLocationSettingsStates();
+//
+//                switch (status.getStatusCode()){
+//                    case LocationSettingsStatusCodes.SUCCESS:
+//                        break;
+//                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+//                        try{
+//                            status.startResolutionForResult(getActivity(),1);
+//
+//                        }catch (IntentSender.SendIntentException e) {
+//                            // Ignore the error.
+//                        }
+//                        break;
+//                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+//                        break;
+//                }
+//            }
+//        });
+//
+//    }
 
     protected void promptDropOffPoint(){
         Log.d(TAG, "Prompt drop-off point");
@@ -406,26 +384,26 @@ public class HomeFragment extends Fragment  implements GoogleApiClient.Connectio
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        int permissionCheck = ContextCompat.checkSelfPermission(getContext(),
-                android.Manifest.permission.ACCESS_FINE_LOCATION);
-        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-                    mGoogleApiClient);
-        }
-
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-    }
+//    @Override
+//    public void onConnected(@Nullable Bundle bundle) {
+//        int permissionCheck = ContextCompat.checkSelfPermission(getContext(),
+//                android.Manifest.permission.ACCESS_FINE_LOCATION);
+//        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+//            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+//                    mGoogleApiClient);
+//        }
+//
+//    }
+//
+//    @Override
+//    public void onConnectionSuspended(int i) {
+//
+//    }
+//
+//    @Override
+//    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+//
+//    }
 //}
 
 

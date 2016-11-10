@@ -7,7 +7,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,6 +16,7 @@ import android.widget.TextView;
 
 import com.kasha.kashawebapp.R;
 import com.kasha.kashawebapp.adapter.CustomViewPagerAdapter;
+import com.kasha.kashawebapp.fragments.LocationFragment;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -39,6 +39,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        LocationFragment locaFrag = new LocationFragment();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .add(locaFrag, "locaFrag")
+                .commit();
 
         // Create the adapter that will return a fragment for each of the three
     // primary sections of the activity.
