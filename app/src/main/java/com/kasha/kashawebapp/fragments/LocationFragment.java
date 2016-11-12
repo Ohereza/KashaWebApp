@@ -16,7 +16,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -32,8 +31,6 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.kasha.kashawebapp.R;
-
-import static android.widget.Toast.LENGTH_LONG;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -147,7 +144,7 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        
+
     }
 
     @Override
@@ -164,16 +161,11 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
     public void onLocationChanged(Location location) {
 
         Log.i("Test Location", String.valueOf(location.getLatitude()));
-        if(location == null) {
-            Toast ttoast = Toast.makeText(getContext(), "Loc is null", LENGTH_LONG);
-            ttoast.show();
-        }
-        else{
-            Toast ttoast = Toast.makeText(getContext(), location.getLatitude()+" "+location.getLongitude(), LENGTH_LONG);
-            //ttoast.show();
+        if(location != null) {
             double dLatitude = location.getLatitude();
             double dLongitude = location.getLongitude();
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(dLatitude, dLongitude), 16.0f));
+            //mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(dLatitude, dLongitude), 16.0f));
+            mMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(dLatitude, dLongitude)));
         }
 
         mLastLocation = location;
@@ -212,10 +204,6 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-
-        Toast ttoast = Toast.makeText(getContext(), "Map is ready", LENGTH_LONG);
-        ttoast.show();
-
         mMap = googleMap;
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         mMap.getUiSettings().setZoomControlsEnabled(true);
