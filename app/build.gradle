@@ -18,6 +18,13 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+    }
 }
 
 dependencies {
@@ -34,5 +41,6 @@ dependencies {
     compile 'com.github.franmontiel:PersistentCookieJar:v1.0.0'
     compile 'com.google.android.gms:play-services:9.6.1'
     compile 'com.android.support:design:24.2.1'
+    compile group: 'com.pubnub', name: 'pubnub', version: '4.2.0'
     testCompile 'junit:junit:4.12'
 }

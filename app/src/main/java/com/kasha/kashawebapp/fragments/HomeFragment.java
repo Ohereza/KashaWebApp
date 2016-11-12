@@ -27,7 +27,6 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Toast;
 
 import com.kasha.kashawebapp.R;
 import com.kasha.kashawebapp.services.LocatorService;
@@ -140,8 +139,6 @@ public class HomeFragment extends Fragment {
                 String[] linkContent2 = (linkContent1[linkContent1.length-1]).split("=");
                 orderKey = linkContent2[linkContent2.length-1];
 
-                Toast.makeText(getContext(),"url: "+url,Toast.LENGTH_LONG).show();
-
                 if(orderKey.startsWith("wc_order_")) {
                     Log.d(TAG, "new orderKey: "+orderKey);
                     promptToEnableLocationAndStartTracking();
@@ -154,8 +151,6 @@ public class HomeFragment extends Fragment {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 String url = request.getUrl().toString();
-
-                Toast.makeText(getContext(),"url: "+url,Toast.LENGTH_LONG).show();
 
                 //multiple split to ensure even if the url format change it doesn't break easily
                 String[] linkContent = url.split("\\/");
