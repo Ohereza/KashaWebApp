@@ -126,32 +126,7 @@ public class HomeFragment extends Fragment {
         kWebView.loadUrl("http://ec2-52-29-162-226.eu-central-1.compute.amazonaws.com/");
 
 
-        // Prompt to enable GPS if not enabled and a delivery request was submitted
-        LocationManager manager = (LocationManager) getActivity().getSystemService(
-                                                                Context.LOCATION_SERVICE);
-        sharedPreferences = getActivity().getSharedPreferences(PREFS_NAME, 0);
-
-        if(!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-                && sharedPreferences.getString("DeliveryStatus","OFF").equalsIgnoreCase("ON")){
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-            builder.setTitle("NOTICE");
-            builder.setMessage("Please enable GPS to be able to take advantage of the " +
-                    "Premium Delivery service tracking option.\n" +
-                    "Delivery where you are." );
-
-            builder.setPositiveButton("Press here", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialogInterface, int i) {
-                        Intent onGPS = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                        startActivity(onGPS);
-                        }
-                    });
-                Dialog alertDialog = builder.create();
-                alertDialog.setCanceledOnTouchOutside(false);
-                alertDialog.show();
-
-            }
-
+        promptUserToEnableGPS();
 
         kWebView.setWebViewClient(new WebViewClient() {
 
@@ -177,36 +152,7 @@ public class HomeFragment extends Fragment {
 
                 if(orderKey.startsWith("wc_order_")) {
                     Log.d(TAG, "new orderKey: "+orderKey);
-                    // Build the alert dialog
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                    builder.setTitle("NOTICE");
-                    builder.setMessage("Please enable GPS to be able to take advantage of the " +
-                            "Premium Delivery service tracking option.\n" +
-                            "Delivery where you are." );
-
-/*                    builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            promptDropOffPoint();
-                        }
-                    });*/
-                    builder.setPositiveButton("Press here", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            Intent onGPS = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                            startActivity(onGPS);
-
-                            sharedPreferences = getActivity().getSharedPreferences(PREFS_NAME, 0);
-                            SharedPreferences.Editor editor = sharedPreferences.edit();
-                            editor.putString("DeliveryStatus","ON");
-                            editor.commit();
-
-                            trackUserLocation();
-                        }
-                    });
-
-                    Dialog alertDialog = builder.create();
-                    alertDialog.setCanceledOnTouchOutside(false);
-                    alertDialog.show();
-
+                    promptToEnableLocationAndStartTracking();
                 }
                 view.loadUrl(url);
                 return false;
@@ -227,38 +173,8 @@ public class HomeFragment extends Fragment {
 
                 if(orderKey.startsWith("wc_order_")) {
                     Log.d(TAG, "new orderKey: "+orderKey);
+                    promptToEnableLocationAndStartTracking();
 
-                    // Build the alert dialog
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                    builder.setTitle("NOTICE");
-                    builder.setMessage("Please enable GPS to be able to take advantage of the " +
-                            "Premium Delivery service tracking option.\n" +
-                            "Delivery where you are.");
-
-
-/*                    builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            promptDropOffPoint();
-                        }
-                    });*/
-                    builder.setPositiveButton("Press here", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            // Prompt to enable location.
-                            Intent onGPS = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                            startActivity(onGPS);
-
-                            sharedPreferences = getActivity().getSharedPreferences(PREFS_NAME, 0);
-                            SharedPreferences.Editor editor = sharedPreferences.edit();
-                            editor.putString("DeliveryStatus","ON");
-                            editor.commit();
-
-                            trackUserLocation();
-                        }
-                    });
-
-                    Dialog alertDialog = builder.create();
-                    alertDialog.setCanceledOnTouchOutside(false);
-                    alertDialog.show();
                 }
 
                 view.loadUrl(url);
@@ -288,7 +204,6 @@ public class HomeFragment extends Fragment {
                 if(event.getAction() == KeyEvent.ACTION_DOWN)
                 {
                     WebView kWebView = (WebView) v;
-
                     switch(keyCode)
                     {
                         case KeyEvent.KEYCODE_BACK:
@@ -300,13 +215,76 @@ public class HomeFragment extends Fragment {
                             break;
                     }
                 }
-
                 return false;
             }
         });
 
         return rootView;
 
+    }
+
+    protected void promptUserToEnableGPS(){
+        // Prompt to enable GPS if not enabled and a delivery request was submitted
+        LocationManager manager = (LocationManager) getActivity().getSystemService(
+                Context.LOCATION_SERVICE);
+        sharedPreferences = getActivity().getSharedPreferences(PREFS_NAME, 0);
+
+        if(!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+                && sharedPreferences.getString("DeliveryStatus","OFF").equalsIgnoreCase("ON")){
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+            builder.setTitle("NOTICE");
+            builder.setMessage("Please enable GPS to be able to take advantage of the " +
+                    "Premium Delivery service tracking option.\n" +
+                    "Delivery where you are." );
+
+            builder.setPositiveButton("Press here", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    Intent onGPS = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    startActivity(onGPS);
+                }
+            });
+            Dialog alertDialog = builder.create();
+            alertDialog.setCanceledOnTouchOutside(false);
+            alertDialog.show();
+        }
+    }
+
+    protected void promptToEnableLocationAndStartTracking(){
+        // Prompt to enable GPS if not enabled and a delivery request was submitted
+        LocationManager manager = (LocationManager) getActivity().getSystemService(
+                Context.LOCATION_SERVICE);
+        sharedPreferences = getActivity().getSharedPreferences(PREFS_NAME, 0);
+
+        if(!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+                && sharedPreferences.getString("DeliveryStatus","OFF").equalsIgnoreCase("ON")){
+
+            // Build the alert dialog
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+            builder.setTitle("NOTICE");
+            builder.setMessage("Please enable GPS to be able to take advantage of the " +
+                    "Premium Delivery service tracking option.\n" +
+                    "Delivery where you are.");
+
+            builder.setPositiveButton("Press here", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    // Prompt to enable location.
+                    Intent onGPS = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    startActivity(onGPS);
+
+                    sharedPreferences = getActivity().getSharedPreferences(PREFS_NAME, 0);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("DeliveryStatus","ON");
+                    editor.commit();
+
+                    trackUserLocation();
+                }
+            });
+
+            Dialog alertDialog = builder.create();
+            alertDialog.setCanceledOnTouchOutside(false);
+            alertDialog.show();
+        }
     }
 
     protected void trackUserLocation(){
@@ -334,7 +312,13 @@ public class HomeFragment extends Fragment {
 
         // Locator service testing:
         Intent locationServiceIntent = new Intent(getContext(),LocatorService.class);
-        locationServiceIntent.putExtra("orderKey", orderKey);
+
+
+        sharedPreferences = getActivity().getSharedPreferences(PREFS_NAME, 0);
+
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("orderKey",orderKey);
+        editor.commit();
         getActivity().startService(locationServiceIntent);
 
     }

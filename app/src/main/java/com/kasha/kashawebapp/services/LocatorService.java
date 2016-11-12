@@ -2,6 +2,7 @@ package com.kasha.kashawebapp.services;
 
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.AsyncTask;
@@ -37,6 +38,8 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import static com.kasha.kashawebapp.helper.Configs.PREFS_NAME;
+
 /**
  * Created by rkabagamba on 10/13/2016.
  */
@@ -58,7 +61,7 @@ public class LocatorService
     PdsAPI pdsAPI;
 
     private Boolean mRequestingLocationUpdates = true;
-
+    private SharedPreferences sharedPreferences;
     private String orderKey;
 
     @Override
@@ -89,7 +92,9 @@ public class LocatorService
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        orderKey = intent.getStringExtra("orderKey");
+        sharedPreferences = getSharedPreferences(PREFS_NAME, 0);
+        orderKey = sharedPreferences.getString("orderKey","NONE");
+        //orderKey = intent.getStringExtra("orderKey");
         return START_NOT_STICKY;
     }
 
