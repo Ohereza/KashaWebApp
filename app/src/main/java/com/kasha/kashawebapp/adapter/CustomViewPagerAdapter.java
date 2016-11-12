@@ -18,8 +18,6 @@ public class CustomViewPagerAdapter extends FragmentStatePagerAdapter {
     private Context context;
 
     String[] tabsTitles;
-    //String[] tabsTitles = {"Yesterday","Today","Week","Month"};
-
     public CustomViewPagerAdapter(FragmentManager fm, Context context) {
         super(fm);
         Resources res = context.getResources();
