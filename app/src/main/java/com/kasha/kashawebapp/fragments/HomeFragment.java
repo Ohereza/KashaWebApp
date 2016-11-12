@@ -155,14 +155,6 @@ public class HomeFragment extends Fragment {
 
         kWebView.setWebViewClient(new WebViewClient() {
 
-            public void onPageFinished(WebView view, String url)
-            {
-        /* This call inject JavaScript into the page which just finished loading. */
-                kWebView.loadUrl("javascript:window.HTMLOUT.processHTML('<html>'+document.getElementsByTagName('shipping_method[0]')[0].innerHTML+'</html>');");
-                Toast.makeText(getContext(),"finished",Toast.LENGTH_LONG);
-
-            }
-
             @SuppressWarnings("deprecation")
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
