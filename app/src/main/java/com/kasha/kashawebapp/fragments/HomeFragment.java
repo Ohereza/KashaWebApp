@@ -20,6 +20,7 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
 
 import com.kasha.kashawebapp.R;
 import com.kasha.kashawebapp.services.LocatorService;
@@ -116,6 +117,14 @@ public class HomeFragment extends Fragment {
         kWebView.loadUrl("http://ec2-52-29-162-226.eu-central-1.compute.amazonaws.com/");
 
         kWebView.setWebViewClient(new WebViewClient() {
+
+            public void onPageFinished(WebView view, String url)
+            {
+        /* This call inject JavaScript into the page which just finished loading. */
+                kWebView.loadUrl("javascript:window.HTMLOUT.processHTML('<html>'+document.getElementsByTagName('shipping_method[0]')[0].innerHTML+'</html>');");
+                Toast.makeText(getContext(),"finished",Toast.LENGTH_LONG);
+
+            }
 
             @SuppressWarnings("deprecation")
             @Override
@@ -214,23 +223,29 @@ public class HomeFragment extends Fragment {
 
         });
 
-        rootView.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                    switch (keyCode) {
-                        case KeyEvent.KEYCODE_BACK:
-                            if (kWebView.canGoBack()) {
-                                kWebView.goBack();
-                            } else {
-                                getActivity().finish();
-                            }
-                            return true;
-                    }
 
+        kWebView.setOnKeyListener(new View.OnKeyListener()
+        {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event)
+            {
+                if(event.getAction() == KeyEvent.ACTION_DOWN)
+                {
+                    WebView kWebView = (WebView) v;
+
+                    switch(keyCode)
+                    {
+                        case KeyEvent.KEYCODE_BACK:
+                            if(kWebView.canGoBack())
+                            {
+                                kWebView.goBack();
+                                return true;
+                            }
+                            break;
+                    }
                 }
-                //return super.onKeyDown(keyCode, event);
-                return onKey(v,keyCode, event);
+
+                return false;
             }
         });
 

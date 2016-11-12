@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -90,7 +91,6 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
         super.onCreate(savedInstanceState);
 
 
-
     }
 
     @Override
@@ -114,22 +114,8 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
 
         createLocationRequest();
 
-
-//        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-//        SupportMapFragment supportMapFragment = (SupportMapFragment) fragmentManager
-//                .findFragmentById(R.id.map);
-
         SupportMapFragment mapFrag = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mapFrag.getMapAsync(this);
-
-//        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-//        SupportMapFragment supportMapFragment = (SupportMapFragment) fragmentManager
-//                .findFragmentById(R.id.map);
-//
-//        supportMapFragment.getMapAsync();
-
-//        mMap = supportMapFragment.getMapAsync(this);
-//        mapView = (View) rootView.findViewById(R.id.map);
 
         //rootView.
         return rootView;
@@ -144,6 +130,18 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
+
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(getContext(),"Make sure the gps permission is allowed", Toast.LENGTH_LONG);
+            return;
+        }
+        Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        if(mLastLocation != null) {
+            double dLatitude = mLastLocation.getLatitude();
+            double dLongitude = mLastLocation.getLongitude();
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(dLatitude, dLongitude), 16.0f));
+        }
 
     }
 
@@ -164,7 +162,6 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
         if(location != null) {
             double dLatitude = location.getLatitude();
             double dLongitude = location.getLongitude();
-            //mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(dLatitude, dLongitude), 16.0f));
             mMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(dLatitude, dLongitude)));
         }
 
@@ -174,32 +171,18 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
         if (marker != null) {
             marker.remove();
         }
-
-        //double dLatitude = mLastLocation.getLatitude();
-        //double dLongitude = mLastLocation.getLongitude();
-
-        //marker = mMap.addMarker(new MarkerOptions().position(new LatLng(dLatitude, dLongitude)).title("My Location"));
-        //.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-//        mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(dLatitude, dLongitude)));
-//        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(dLatitude, dLongitude), 12.0f));
-        //mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(dLatitude, dLongitude), 16.0f));
-
-
     }
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
-
     }
 
     @Override
     public void onProviderEnabled(String provider) {
-
     }
 
     @Override
     public void onProviderDisabled(String provider) {
-
     }
 
     @Override
@@ -219,34 +202,6 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
 
     }
 
-//    @Override
-//    public void onAttach(Context context) {
-//        super.onAttach(context);
-//        if (context instanceof OnFragmentInteractionListener) {
-//            mListener = (OnFragmentInteractionListener) context;
-//        } else {
-//            throw new RuntimeException(context.toString()
-//                    + " must implement OnFragmentInteractionListener");
-//        }
-//    }
-
-//    @Override
-//    public void onDetach() {
-//        super.onDetach();
-//        mListener = null;
-//    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(10000);
@@ -260,30 +215,6 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
         final PendingResult<LocationSettingsResult> result =
                 LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient,
                         builder.build());
-
-       /* result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
-            @Override
-            public void onResult(@NonNull LocationSettingsResult locationSettingsResult) {
-                final Status status = locationSettingsResult.getStatus();
-                final LocationSettingsStates locationSettingsStates
-                        = locationSettingsResult.getLocationSettingsStates();
-
-                switch (status.getStatusCode()){
-                    case LocationSettingsStatusCodes.SUCCESS:
-                        break;
-                   case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                        try{
-                            status.startResolutionForResult(getApplicationContext(),
-                                    1);
-                        } catch (IntentSender.SendIntentException e) {
-                            // Ignore the error.
-                        }
-                        break;
-                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                        break;
-                }
-            }
-        });*/
 
     }
 
@@ -306,13 +237,6 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
 
         if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
             return;
         }
         mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
@@ -325,13 +249,6 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
 
         if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
             return;
         }
         mLocationManager.removeUpdates(this);
