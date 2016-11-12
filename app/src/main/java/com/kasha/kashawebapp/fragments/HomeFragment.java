@@ -155,6 +155,14 @@ public class HomeFragment extends Fragment {
 
         kWebView.setWebViewClient(new WebViewClient() {
 
+            public void onPageFinished(WebView view, String url)
+            {
+        /* This call inject JavaScript into the page which just finished loading. */
+                kWebView.loadUrl("javascript:window.HTMLOUT.processHTML('<html>'+document.getElementsByTagName('shipping_method[0]')[0].innerHTML+'</html>');");
+                Toast.makeText(getContext(),"finished",Toast.LENGTH_LONG);
+
+            }
+
             @SuppressWarnings("deprecation")
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -271,23 +279,29 @@ public class HomeFragment extends Fragment {
 
         });
 
-        rootView.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                    switch (keyCode) {
-                        case KeyEvent.KEYCODE_BACK:
-                            if (kWebView.canGoBack()) {
-                                kWebView.goBack();
-                            } else {
-                                getActivity().finish();
-                            }
-                            return true;
-                    }
 
+        kWebView.setOnKeyListener(new View.OnKeyListener()
+        {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event)
+            {
+                if(event.getAction() == KeyEvent.ACTION_DOWN)
+                {
+                    WebView kWebView = (WebView) v;
+
+                    switch(keyCode)
+                    {
+                        case KeyEvent.KEYCODE_BACK:
+                            if(kWebView.canGoBack())
+                            {
+                                kWebView.goBack();
+                                return true;
+                            }
+                            break;
+                    }
                 }
-                //return super.onKeyDown(keyCode, event);
-                return onKey(v,keyCode, event);
+
+                return false;
             }
         });
 
