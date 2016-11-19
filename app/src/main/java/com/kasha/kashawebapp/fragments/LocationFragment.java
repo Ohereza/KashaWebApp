@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
@@ -31,7 +32,19 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.kasha.kashawebapp.R;
+import com.kasha.kashawebapp.helper.Configs;
+import com.pubnub.api.PNConfiguration;
+import com.pubnub.api.PubNub;
+import com.pubnub.api.callbacks.SubscribeCallback;
+import com.pubnub.api.enums.PNStatusCategory;
+import com.pubnub.api.models.consumer.PNStatus;
+import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
+import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
+
+import java.util.Arrays;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -44,7 +57,6 @@ import com.kasha.kashawebapp.R;
 public class LocationFragment extends Fragment implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
         android.location.LocationListener {
-    // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
@@ -56,27 +68,24 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
     private Marker marker;
     private LocationManager mLocationManager;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
     private View rootView;
 
     private OnFragmentInteractionListener mListener;
+
+    private LatLng clientLocation;
+    private LatLng myLocation;
+
+    private LocationManager manager;
+
+    private PolylineOptions mPolylineOptions;
+
+    private boolean zoomToMyLocation = true;
+
 
     public LocationFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment LocationFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static LocationFragment newInstance(String param1, String param2) {
         LocationFragment fragment = new LocationFragment();
         Bundle args = new Bundle();
@@ -90,7 +99,6 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
     }
 
     @Override
@@ -98,7 +106,6 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         //return inflater.inflate(R.layout.fragment_location, container, false);
-
         rootView = inflater.inflate(R.layout.fragment_location, container, false);
 
         // Create an instance of GoogleAPIClient.
@@ -117,11 +124,94 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
         SupportMapFragment mapFrag = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mapFrag.getMapAsync(this);
 
+
+        // ################################################################################
+        //  PUBNUB EXAMPLE
+        //###################################################################################
+        PNConfiguration pnConfiguration = new PNConfiguration();
+        pnConfiguration.setSubscribeKey(Configs.pubnub_subscribeKey);
+        pnConfiguration.setPublishKey(Configs.pubnub_publishKey);
+        PubNub pubnub = new PubNub(pnConfiguration);
+
+        // Subscribe to a channel
+        pubnub.subscribe().channels(Arrays.asList("6fecf37679", "mymaps")).execute();
+
+        // Listen for incoming messages
+        //pubnub.addListener(new MyPubnubListenerService());
+
+        pubnub.addListener(new SubscribeCallback() {
+            @Override
+            public void status(PubNub pubnub, PNStatus status) {
+                if (status.getCategory() == PNStatusCategory.PNUnexpectedDisconnectCategory) {
+                    // This event happens when radio / connectivity is lost
+
+                } else if (status.getCategory() == PNStatusCategory.PNConnectedCategory) {
+                    // Connect event. You can do stuff like publish, and know you'll get it.
+                    // Or just use the connected event to confirm you are subscribed for
+                    // UI / internal notifications, etc
+
+                    if (status.getCategory() == PNStatusCategory.PNConnectedCategory) {
+
+
+                    }
+                } else if (status.getCategory() == PNStatusCategory.PNReconnectedCategory) {
+                    // Happens as part of our regular operation. This event happens when
+                    // radio / connectivity is lost, then regained.
+
+                } else if (status.getCategory() == PNStatusCategory.PNDecryptionErrorCategory) {
+                    // Handle messsage decryption error. Probably client configured to
+                    // encrypt messages and on live data feed it received plain text.
+                }
+            }
+
+            @Override
+            public void message(PubNub pubnub, PNMessageResult message) {
+                zoomToMyLocation = false;
+                    String latLon = message.getMessage().toString().split("(\\{)|(:)|(\\[)|(\\])")[5];
+                    double lat = Double.parseDouble(latLon.split(",")[0]);
+                    double lon = Double.parseDouble(latLon.split(",")[1]);
+
+                    clientLocation = new LatLng(lat, lon);
+                    mPolylineOptions = new PolylineOptions();
+                    mPolylineOptions.color(Color.BLUE).width(10);
+
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            updatePolyline();
+                            updateCamera();
+                            updateMarker();
+                        }
+
+                    });
+            }
+
+            private void updatePolyline() {
+                mMap.clear();
+                mMap.addPolyline(mPolylineOptions.add(clientLocation));
+
+            }
+
+            private void updateMarker() {
+                mMap.addMarker(new MarkerOptions().position(clientLocation).title("My Package"));
+            }
+
+            private void updateCamera() {
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(clientLocation, 14));
+            }
+
+            @Override
+            public void presence(PubNub pubnub, PNPresenceEventResult presence) {
+            }
+        });
+        ///////////////////////
+        /// End of pubnub////
+        //////////////////////
+
         //rootView.
         return rootView;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
@@ -133,14 +223,15 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
 
         if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(getContext(),"Make sure the gps permission is allowed", Toast.LENGTH_LONG);
+            Toast.makeText(getContext(), "Make sure the gps permission is allowed", Toast.LENGTH_LONG);
             return;
         }
         Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        if(mLastLocation != null) {
+        if (mLastLocation != null) {
             double dLatitude = mLastLocation.getLatitude();
             double dLongitude = mLastLocation.getLongitude();
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(dLatitude, dLongitude), 16.0f));
+            myLocation = new LatLng(dLatitude, dLongitude);
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 16.0f));
         }
 
     }
@@ -159,10 +250,21 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
     public void onLocationChanged(Location location) {
 
         Log.i("Test Location", String.valueOf(location.getLatitude()));
-        if(location != null) {
+        if (location != null) {
             double dLatitude = location.getLatitude();
             double dLongitude = location.getLongitude();
-            mMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(dLatitude, dLongitude)));
+            myLocation = new LatLng(dLatitude, dLongitude);
+            if (zoomToMyLocation) {
+                mMap.animateCamera(CameraUpdateFactory.newLatLng(myLocation));
+            } else {
+                //mMap.moveCamera(CameraUpdateFactory.newLatLng(myLocation));
+                if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) !=
+                        PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(),
+                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    return;
+                }
+                mMap.setMyLocationEnabled(true); //addMarker(new MarkerOptions().position(myLocation));
+            }
         }
 
         mLastLocation = location;
@@ -255,7 +357,6 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
     }
 
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
 }

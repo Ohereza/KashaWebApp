@@ -1,11 +1,18 @@
 package com.kasha.kashawebapp.views;
 
+import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -53,8 +60,11 @@ public class MainActivity extends AppCompatActivity {
     // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mCustomViewPagerAdapter);
+        if(mViewPager.getCurrentItem()==1){
+            promptUserToEnableGPS();
+        }
 
-    // Set welcome tab to Today's tab
+        //set welcome tab to webview tab
         mViewPager.setCurrentItem(0);
 
         TabLayout mTabLayout = (TabLayout) findViewById(R.id.tab_layout);
@@ -83,6 +93,29 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    protected void promptUserToEnableGPS(){
+        // Prompt to enable GPS if not enabled and a delivery request was submitted
+        LocationManager manager = (LocationManager) this.getSystemService(
+                Context.LOCATION_SERVICE);
+
+        if(!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("NOTICE");
+            builder.setMessage("Please enable GPS to be able to use the map." );
+
+            builder.setPositiveButton("Press here", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    Intent onGPS = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    startActivity(onGPS);
+                }
+            });
+            Dialog alertDialog = builder.create();
+            alertDialog.setCanceledOnTouchOutside(false);
+            alertDialog.show();
+        }
     }
 
     /**
