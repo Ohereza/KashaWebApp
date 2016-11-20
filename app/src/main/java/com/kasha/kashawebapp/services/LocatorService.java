@@ -148,9 +148,15 @@ public class LocatorService extends Service
 
     @Override
     public void onLocationChanged(Location location) {
-        Toast.makeText(this, "OnLocation changed", Toast.LENGTH_SHORT).show();
-        LocationWebService locationWebService = new LocationWebService();
-        locationWebService.execute(location);
+
+        if(sharedPreferences.getString("DeliveryStatus","OFF").equalsIgnoreCase("ON")){
+            Toast.makeText(this, "OnLocation changed", Toast.LENGTH_SHORT).show();
+            LocationWebService locationWebService = new LocationWebService();
+            locationWebService.execute(location);
+        } else {
+            Toast.makeText(this, "Stopping the locator service", Toast.LENGTH_SHORT).show();
+            stopSelf();
+        }
     }
 
     @Override

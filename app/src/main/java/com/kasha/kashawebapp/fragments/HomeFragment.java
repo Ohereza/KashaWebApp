@@ -102,7 +102,6 @@ public class HomeFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.fragment_home, container, false);
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         sharedPreferences = getActivity().getSharedPreferences(PREFS_NAME,0);
 
@@ -111,7 +110,6 @@ public class HomeFragment extends Fragment {
 
         WebSettings webSettings = kWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
-
 
         //myWebView.getSettings().setAppCacheMaxSize( 5 * 1024 * 1024 ); // 5MB
         //myWebView.getSettings().setAppCachePath( getApplicationContext().getCacheDir().getAbsolutePath() );
@@ -127,15 +125,12 @@ public class HomeFragment extends Fragment {
         //myWebView.loadUrl("http://ec2-52-57-159-28.eu-central-1.compute.amazonaws.com/");
         kWebView.loadUrl("http://ec2-52-29-162-226.eu-central-1.compute.amazonaws.com/");
 
-
         promptUserToEnableGPS();
 
         kWebView.setWebViewClient(new WebViewClient() {
-
             @SuppressWarnings("deprecation")
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-
                 //multiple split to ensure even if the url format change it doesn't break easily
                 String[] linkContent = url.split("\\/");
                 String[] linkContent1 = (linkContent[linkContent.length-1]). split("\\?");
@@ -159,7 +154,6 @@ public class HomeFragment extends Fragment {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 String url = request.getUrl().toString();
-
                 //multiple split to ensure even if the url format change it doesn't break easily
                 String[] linkContent = url.split("\\/");
                 String[] linkContent1 = (linkContent[linkContent.length-1]). split("\\?");
@@ -176,7 +170,6 @@ public class HomeFragment extends Fragment {
                     promptToEnableLocationAndStartTracking();
 
                 }
-
                 view.loadUrl(url);
                 return true;
             }
@@ -192,9 +185,7 @@ public class HomeFragment extends Fragment {
             public void onReceivedError(WebView view, WebResourceRequest req, WebResourceError rerr) {
                 kWebView.loadUrl("file:///android_asset/error.html");
             }
-
         });
-
 
         kWebView.setOnKeyListener(new View.OnKeyListener()
         {
@@ -218,9 +209,7 @@ public class HomeFragment extends Fragment {
                 return false;
             }
         });
-
         return rootView;
-
     }
 
     protected void promptUserToEnableGPS(){
