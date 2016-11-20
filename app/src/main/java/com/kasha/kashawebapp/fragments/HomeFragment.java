@@ -31,6 +31,7 @@ import android.widget.Toast;
 
 import com.kasha.kashawebapp.R;
 import com.kasha.kashawebapp.services.LocatorService;
+import com.kasha.kashawebapp.services.MyPubnubListenerService;
 
 import static com.kasha.kashawebapp.helper.Configs.PREFS_NAME;
 
@@ -310,15 +311,20 @@ public class HomeFragment extends Fragment {
 
         Toast.makeText(getActivity(),"Start locator service",
                 Toast.LENGTH_LONG).show();
+
         // Locator service:
         Intent locationServiceIntent = new Intent(getContext(),LocatorService.class);
+        //  PubnubListner service
+        Intent pubnubListenerService = new Intent(getContext(), MyPubnubListenerService.class);
 
         sharedPreferences = getActivity().getSharedPreferences(PREFS_NAME, 0);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("orderKey",orderKey);
         editor.commit();
 
+        // start services
         getActivity().startService(locationServiceIntent);
+        getActivity().startService(pubnubListenerService);
 
     }
 

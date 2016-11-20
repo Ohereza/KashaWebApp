@@ -56,6 +56,8 @@
             android:name=".services.LocatorService"
             android:process=":locator_service" />
 
+        <service android:name=".services.MyPubnubListenerService" />
+
         <activity
             android:name=".views.MainActivity"
             android:label="@string/title_activity_home"

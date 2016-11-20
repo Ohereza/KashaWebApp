@@ -13,7 +13,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -249,7 +248,7 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
     @Override
     public void onLocationChanged(Location location) {
 
-        Log.i("Test Location", String.valueOf(location.getLatitude()));
+        //Log.i("Test Location", String.valueOf(location.getLatitude()));
         if (location != null) {
             double dLatitude = location.getLatitude();
             double dLongitude = location.getLongitude();

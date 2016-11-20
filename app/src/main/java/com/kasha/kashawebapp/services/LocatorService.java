@@ -39,6 +39,8 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.kasha.kashawebapp.helper.Configs.PREFS_NAME;
+import static com.kasha.kashawebapp.helper.Configs.bckend_password;
+import static com.kasha.kashawebapp.helper.Configs.bckend_username;
 
 /**
  * Created by rkabagamba on 10/13/2016.
@@ -209,7 +211,7 @@ public class LocatorService extends Service
 
             pdsAPI = retrofit.create(PdsAPI.class);
 
-            pdsAPI.login("Administrator", "pds").enqueue(new Callback<LoginResponse>() {
+            pdsAPI.login(bckend_username, bckend_password).enqueue(new Callback<LoginResponse>() {
                 @Override
                 public void onResponse(Call<LoginResponse> call,
                                        Response<LoginResponse> response){
@@ -221,8 +223,9 @@ public class LocatorService extends Service
                                 @Override
                                 public void onResponse(Call<LocationUpdateResponse> call,
                                                        Response<LocationUpdateResponse> response){
-                                   Toast.makeText(getApplicationContext(),"order_id"+ orderKey+
-                                           " response status: "+response.code(),Toast.LENGTH_LONG).show();
+                                   Toast.makeText(getApplicationContext(),"order_id "+ orderKey+
+                                           " response status: "+ response.code() + " " +
+                                           response.message(),Toast.LENGTH_LONG).show();
                                 }
 
                                 @Override
