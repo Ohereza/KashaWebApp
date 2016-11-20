@@ -313,7 +313,7 @@ public class HomeFragment extends Fragment {
 
         // start services
         getActivity().startService(locationServiceIntent);
-        getActivity().startService(pubnubListenerService);
+        getActivity().startService(pubnubListenerService); 
 
     }
 
