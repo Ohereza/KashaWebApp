@@ -8,6 +8,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.design.widget.TabLayout;
+import android.support.multidex.MultiDex;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -41,6 +42,12 @@ public class MainActivity extends AppCompatActivity {
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
+
+    @Override
+    protected void attachBaseContext(Context context) {
+        super.attachBaseContext(context);
+        MultiDex.install(this);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

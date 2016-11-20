@@ -63,7 +63,6 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
     private GoogleMap mMap;
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
-    private Location mLastLocation;
     private Marker marker;
     private LocationManager mLocationManager;
 
@@ -266,8 +265,6 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
             }
         }
 
-        mLastLocation = location;
-
         //remove previous current location Marker
         if (marker != null) {
             marker.remove();
@@ -304,6 +301,7 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
     }
 
     protected void createLocationRequest() {
+
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(10000);
         mLocationRequest.setFastestInterval(5000);
