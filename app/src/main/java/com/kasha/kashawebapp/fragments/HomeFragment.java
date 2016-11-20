@@ -43,6 +43,10 @@ import static com.kasha.kashawebapp.helper.Configs.PREFS_NAME;
  * create an instance of this fragment.
  */
 public class HomeFragment extends Fragment {
+    // TODO: Rename parameter arguments, choose names that match
+    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+    private static final String ARG_PARAM1 = "param1";
+    private static final String ARG_PARAM2 = "param2";
 
     private final String webUrl = "http://ec2-52-29-162-226.eu-central-1.compute.amazonaws.com/";
 
@@ -50,7 +54,7 @@ public class HomeFragment extends Fragment {
     private WebView kWebView;
 
     private static final int REQUEST_ACCESS_FINE_LOCATION = 0;
-//    private GoogleApiClient mGoogleApiClient = null;
+    //    private GoogleApiClient mGoogleApiClient = null;
 //    private Location mLastLocation = null;
 //    private LocationRequest mLocationRequest;
     private String orderKey;
@@ -63,6 +67,7 @@ public class HomeFragment extends Fragment {
     public HomeFragment() {
         // Required empty public constructor
     }
+
 
     public static HomeFragment newInstance(String param1, String param2) {
         HomeFragment fragment = new HomeFragment();
@@ -84,7 +89,7 @@ public class HomeFragment extends Fragment {
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.fragment_home, container, false);
 
-        sharedPreferences = getActivity().getSharedPreferences(PREFS_NAME,0);
+        sharedPreferences = getActivity().getSharedPreferences(PREFS_NAME, 0);
 
         //mVisible = true;
         kWebView = (WebView) rootView.findViewById(R.id.kashaWebView);
@@ -92,13 +97,13 @@ public class HomeFragment extends Fragment {
         WebSettings webSettings = kWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
 
-        kWebView.getSettings().setAllowFileAccess( true );
-        kWebView.getSettings().setJavaScriptEnabled( true );
-        kWebView.getSettings().setCacheMode( WebSettings.LOAD_DEFAULT );
+        kWebView.getSettings().setAllowFileAccess(true);
+        kWebView.getSettings().setJavaScriptEnabled(true);
+        kWebView.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
 
         if (!isNetworkAvailable()) { // loading offline
-            kWebView.getSettings().setCacheMode( WebSettings.LOAD_CACHE_ELSE_NETWORK );
-            }
+            kWebView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
+        }
 
         kWebView.loadUrl(webUrl);
         promptUserToEnableGPS();
@@ -111,15 +116,15 @@ public class HomeFragment extends Fragment {
 
                 //multiple split to ensure even if the url format change it doesn't break easily
                 String[] linkContent = url.split("\\/");
-                String[] linkContent1 = (linkContent[linkContent.length-1]). split("\\?");
-                String[] linkContent2 = (linkContent1[linkContent1.length-1]).split("=");
-                orderKey = linkContent2[linkContent2.length-1];
+                String[] linkContent1 = (linkContent[linkContent.length - 1]).split("\\?");
+                String[] linkContent2 = (linkContent1[linkContent1.length - 1]).split("=");
+                orderKey = linkContent2[linkContent2.length - 1];
 
-                if(orderKey.startsWith("wc_order_")) {
-                    Log.d(TAG, "new orderKey: "+orderKey);
+                if (orderKey.startsWith("wc_order_")) {
+                    Log.d(TAG, "new orderKey: " + orderKey);
                     // set delivery status to ON for deliver request made
                     SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putString("DeliveryStatus","ON");
+                    editor.putString("DeliveryStatus", "ON");
                     editor.commit();
 
                     promptToEnableLocationAndStartTracking();
@@ -134,15 +139,15 @@ public class HomeFragment extends Fragment {
                 String url = request.getUrl().toString();
                 //multiple split to ensure even if the url format change it doesn't break easily
                 String[] linkContent = url.split("\\/");
-                String[] linkContent1 = (linkContent[linkContent.length-1]). split("\\?");
-                String[] linkContent2 = (linkContent1[linkContent1.length-1]).split("=");
-                orderKey = linkContent2[linkContent2.length-1];
+                String[] linkContent1 = (linkContent[linkContent.length - 1]).split("\\?");
+                String[] linkContent2 = (linkContent1[linkContent1.length - 1]).split("=");
+                orderKey = linkContent2[linkContent2.length - 1];
 
-                if(orderKey.startsWith("wc_order_")) {
-                    Log.d(TAG, "new orderKey: "+orderKey);
+                if (orderKey.startsWith("wc_order_")) {
+                    Log.d(TAG, "new orderKey: " + orderKey);
                     // set delivery status to ON for deliver request made
                     SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putString("DeliveryStatus","ON");
+                    editor.putString("DeliveryStatus", "ON");
                     editor.commit();
 
                     promptToEnableLocationAndStartTracking();
@@ -165,22 +170,17 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        kWebView.setOnKeyListener(new View.OnKeyListener()
-        {
+        kWebView.setOnKeyListener(new View.OnKeyListener() {
             @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event)
-            {
-                if(event.getAction() == KeyEvent.ACTION_DOWN)
-                {
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (event.getAction() == KeyEvent.ACTION_DOWN) {
                     WebView kWebView = (WebView) v;
-                    switch(keyCode)
-                    {
+                    switch (keyCode) {
                         case KeyEvent.KEYCODE_BACK:
-                            if(kWebView.canGoBack() && (!kWebView.getUrl().contains(webUrl) && !kWebView.getUrl().contains("order-received"))) {
+                            if (kWebView.canGoBack() && (!kWebView.getUrl().contains(webUrl) && !kWebView.getUrl().contains("order-received"))) {
                                 kWebView.goBack();
                                 return true;
-                            }
-                            else if(kWebView.getUrl().contains("order-received") ==true && kWebView.canGoBack()){
+                            } else if (kWebView.getUrl().contains("order-received") == true && kWebView.canGoBack()) {
                                 kWebView.loadUrl(webUrl);
                                 return true;
 
@@ -194,20 +194,20 @@ public class HomeFragment extends Fragment {
         return rootView;
     }
 
-    protected void promptUserToEnableGPS(){
+    protected void promptUserToEnableGPS() {
         // Prompt to enable GPS if not enabled and a delivery request was submitted
         LocationManager manager = (LocationManager) getActivity().getSystemService(
                 Context.LOCATION_SERVICE);
         sharedPreferences = getActivity().getSharedPreferences(PREFS_NAME, 0);
 
-        if(!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-                && sharedPreferences.getString("DeliveryStatus","OFF").equalsIgnoreCase("ON")){
+        if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+                && sharedPreferences.getString("DeliveryStatus", "OFF").equalsIgnoreCase("ON")) {
 
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
             builder.setTitle("NOTICE");
             builder.setMessage("Please enable GPS to be able to take advantage of the " +
                     "Premium Delivery service tracking option.\n" +
-                    "Delivery where you are." );
+                    "Delivery where you are.");
 
             builder.setPositiveButton("Press here", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialogInterface, int i) {
@@ -221,14 +221,14 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    protected void promptToEnableLocationAndStartTracking(){
+    protected void promptToEnableLocationAndStartTracking() {
         // Prompt to enable GPS if not enabled and a delivery request was submitted
         LocationManager manager = (LocationManager) getActivity().getSystemService(
                 Context.LOCATION_SERVICE);
         sharedPreferences = getActivity().getSharedPreferences(PREFS_NAME, 0);
 
-        if(!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-                && sharedPreferences.getString("DeliveryStatus","OFF").equalsIgnoreCase("ON")){
+        if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+                && sharedPreferences.getString("DeliveryStatus", "OFF").equalsIgnoreCase("ON")) {
 
             // Build the alert dialog
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
@@ -251,13 +251,13 @@ public class HomeFragment extends Fragment {
             alertDialog.show();
         }
 
-        Toast.makeText(getActivity(),"Start tracking user location",
+        Toast.makeText(getActivity(), "Start tracking user location",
                 Toast.LENGTH_LONG).show();
         trackUserLocation();
 
     }
 
-    protected void trackUserLocation(){
+    protected void trackUserLocation() {
 
         //Programmatically request ACCESS_FINE_LOCATION PERMISSION if missing
         int permissionCheck = ContextCompat.checkSelfPermission(getActivity(),
@@ -268,27 +268,30 @@ public class HomeFragment extends Fragment {
                     REQUEST_ACCESS_FINE_LOCATION);
         }
 
-        Toast.makeText(getActivity(),"Start locator service",
+        Toast.makeText(getActivity(), "Start locator service",
                 Toast.LENGTH_LONG).show();
         // Locator service:
-        Intent locationServiceIntent = new Intent(getContext(),LocatorService.class);
+        Intent locationServiceIntent = new Intent(getContext(), LocatorService.class);
+        //  PubnubListner service
+        Intent pubnubListenerService = new Intent(getContext(), MyPubnubListenerService.class);
 
         sharedPreferences = getActivity().getSharedPreferences(PREFS_NAME, 0);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("orderKey",orderKey);
+        editor.putString("orderKey", orderKey);
         editor.commit();
 
+        // start services
         getActivity().startService(locationServiceIntent);
+        getActivity().startService(pubnubListenerService);
 
     }
 
-
-    protected void promptDropOffPoint(){
+    protected void promptDropOffPoint() {
         Log.d(TAG, "Prompt drop-off point");
     }
 
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
 
         // Prompt to enable GPS if not enabled and a delivery request was submitted
@@ -296,14 +299,14 @@ public class HomeFragment extends Fragment {
                 Context.LOCATION_SERVICE);
         sharedPreferences = getActivity().getSharedPreferences(PREFS_NAME, 0);
 
-        if(!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-                && sharedPreferences.getString("DeliveryStatus","OFF").equalsIgnoreCase("ON")){
+        if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+                && sharedPreferences.getString("DeliveryStatus", "OFF").equalsIgnoreCase("ON")) {
 
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
             builder.setTitle("NOTICE");
             builder.setMessage("Please enable GPS to be able to take advantage of the " +
                     "Premium Delivery service tracking option.\n" +
-                    "Delivery where you are." );
+                    "Delivery where you are.");
 
             builder.setPositiveButton("Press here", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialogInterface, int i) {
@@ -317,11 +320,12 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    private  boolean isNetworkAvailable() {
+    private boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager
                 = (ConnectivityManager) getActivity().getSystemService(getActivity().CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 }
+
 

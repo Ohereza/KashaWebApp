@@ -68,7 +68,7 @@ public class MyPubnubListenerService extends IntentService {
         // Get username
         orderKey = sharedPreferences.getString("orderKey",null);
         // Subscribe to a channel - the same as the username
-        pubnub.subscribe().channels(Arrays.asList("wc_order_5831ad1c97c3b")).execute();
+        pubnub.subscribe().channels(Arrays.asList(orderKey)).execute();
 
         Log.v(TAG_PUBNUBLISTENER, "order id: "+orderKey);
     }
