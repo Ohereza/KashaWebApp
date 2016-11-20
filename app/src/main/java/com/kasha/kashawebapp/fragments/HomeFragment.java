@@ -31,7 +31,6 @@ import android.widget.Toast;
 
 import com.kasha.kashawebapp.R;
 import com.kasha.kashawebapp.services.LocatorService;
-import com.kasha.kashawebapp.services.MyPubnubListenerService;
 
 import static com.kasha.kashawebapp.helper.Configs.PREFS_NAME;
 
@@ -120,7 +119,7 @@ public class HomeFragment extends Fragment {
                     // set delivery status to ON for deliver request made
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putString("DeliveryStatus","ON");
-                    editor.commit();
+                    editor.apply();
 
                     promptToEnableLocationAndStartTracking();
                 }
@@ -143,7 +142,7 @@ public class HomeFragment extends Fragment {
                     // set delivery status to ON for deliver request made
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putString("DeliveryStatus","ON");
-                    editor.commit();
+                    editor.apply();
 
                     promptToEnableLocationAndStartTracking();
 
@@ -276,7 +275,7 @@ public class HomeFragment extends Fragment {
         sharedPreferences = getActivity().getSharedPreferences(PREFS_NAME, 0);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("orderKey",orderKey);
-        editor.commit();
+        editor.apply();
 
         getActivity().startService(locationServiceIntent);
 
