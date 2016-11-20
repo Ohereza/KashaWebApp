@@ -46,7 +46,8 @@ public class HomeFragment extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
+    private final String webUrl = "http://ec2-52-29-162-226.eu-central-1.compute.amazonaws.com/";
+
     private String mParam1;
     private String mParam2;
 
@@ -68,15 +69,6 @@ public class HomeFragment extends Fragment {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment HomeFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static HomeFragment newInstance(String param1, String param2) {
         HomeFragment fragment = new HomeFragment();
         Bundle args = new Bundle();
@@ -90,8 +82,6 @@ public class HomeFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
         }
     }
 
@@ -122,7 +112,7 @@ public class HomeFragment extends Fragment {
             }
 
         //myWebView.loadUrl("http://ec2-52-57-159-28.eu-central-1.compute.amazonaws.com/");
-        kWebView.loadUrl("http://ec2-52-29-162-226.eu-central-1.compute.amazonaws.com/");
+        kWebView.loadUrl(webUrl);
 
 
         promptUserToEnableGPS();
@@ -194,10 +184,14 @@ public class HomeFragment extends Fragment {
                     switch(keyCode)
                     {
                         case KeyEvent.KEYCODE_BACK:
-                            if(kWebView.canGoBack())
-                            {
+                            if(kWebView.canGoBack() && (!kWebView.getUrl().contains(webUrl) && !kWebView.getUrl().contains("order-received"))) {
                                 kWebView.goBack();
                                 return true;
+                            }
+                            else if(kWebView.getUrl().contains("order-received") ==true && kWebView.canGoBack()){
+                                kWebView.loadUrl(webUrl);
+                                return true;
+
                             }
                             break;
                     }
