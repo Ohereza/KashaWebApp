@@ -31,6 +31,7 @@ import android.widget.Toast;
 
 import com.kasha.kashawebapp.R;
 import com.kasha.kashawebapp.services.LocatorService;
+import com.kasha.kashawebapp.services.MyPubnubListenerService;
 
 import static com.kasha.kashawebapp.helper.Configs.PREFS_NAME;
 
@@ -164,22 +165,17 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        kWebView.setOnKeyListener(new View.OnKeyListener()
-        {
+        kWebView.setOnKeyListener(new View.OnKeyListener() {
             @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event)
-            {
-                if(event.getAction() == KeyEvent.ACTION_DOWN)
-                {
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (event.getAction() == KeyEvent.ACTION_DOWN) {
                     WebView kWebView = (WebView) v;
-                    switch(keyCode)
-                    {
+                    switch (keyCode) {
                         case KeyEvent.KEYCODE_BACK:
-                            if(kWebView.canGoBack() && (!kWebView.getUrl().contains(webUrl) && !kWebView.getUrl().contains("order-received"))) {
+                            if (kWebView.canGoBack() && (!kWebView.getUrl().contains(webUrl) && !kWebView.getUrl().contains("order-received"))) {
                                 kWebView.goBack();
                                 return true;
-                            }
-                            else if(kWebView.getUrl().contains("order-received") ==true && kWebView.canGoBack()){
+                            } else if (kWebView.getUrl().contains("order-received") == true && kWebView.canGoBack()) {
                                 kWebView.loadUrl(webUrl);
                                 return true;
 
@@ -199,14 +195,14 @@ public class HomeFragment extends Fragment {
                 Context.LOCATION_SERVICE);
         sharedPreferences = getActivity().getSharedPreferences(PREFS_NAME, 0);
 
-        if(!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-                && sharedPreferences.getString("DeliveryStatus","OFF").equalsIgnoreCase("ON")){
+        if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+                && sharedPreferences.getString("DeliveryStatus", "OFF").equalsIgnoreCase("ON")) {
 
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
             builder.setTitle("NOTICE");
             builder.setMessage("Please enable GPS to be able to take advantage of the " +
                     "Premium Delivery service tracking option.\n" +
-                    "Delivery where you are." );
+                    "Delivery where you are.");
 
             builder.setPositiveButton("Press here", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialogInterface, int i) {
@@ -220,14 +216,14 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    protected void promptToEnableLocationAndStartTracking(){
+    protected void promptToEnableLocationAndStartTracking() {
         // Prompt to enable GPS if not enabled and a delivery request was submitted
         LocationManager manager = (LocationManager) getActivity().getSystemService(
                 Context.LOCATION_SERVICE);
         sharedPreferences = getActivity().getSharedPreferences(PREFS_NAME, 0);
 
-        if(!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-                && sharedPreferences.getString("DeliveryStatus","OFF").equalsIgnoreCase("ON")){
+        if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+                && sharedPreferences.getString("DeliveryStatus", "OFF").equalsIgnoreCase("ON")) {
 
             // Build the alert dialog
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
@@ -250,7 +246,7 @@ public class HomeFragment extends Fragment {
             alertDialog.show();
         }
 
-        Toast.makeText(getActivity(),"Start tracking user location",
+        Toast.makeText(getActivity(), "Start tracking user location",
                 Toast.LENGTH_LONG).show();
         trackUserLocation();
 
@@ -267,27 +263,30 @@ public class HomeFragment extends Fragment {
                     REQUEST_ACCESS_FINE_LOCATION);
         }
 
-        Toast.makeText(getActivity(),"Start locator service",
+        Toast.makeText(getActivity(), "Start locator service",
                 Toast.LENGTH_LONG).show();
         // Locator service:
-        Intent locationServiceIntent = new Intent(getContext(),LocatorService.class);
+        Intent locationServiceIntent = new Intent(getContext(), LocatorService.class);
+        //  PubnubListner service
+        Intent pubnubListenerService = new Intent(getContext(), MyPubnubListenerService.class);
 
         sharedPreferences = getActivity().getSharedPreferences(PREFS_NAME, 0);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("orderKey",orderKey);
-        editor.apply();
+        editor.putString("orderKey", orderKey);
+        editor.commit();
 
+        // start services
         getActivity().startService(locationServiceIntent);
+        getActivity().startService(pubnubListenerService);
 
     }
 
-
-    protected void promptDropOffPoint(){
+    protected void promptDropOffPoint() {
         Log.d(TAG, "Prompt drop-off point");
     }
 
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
 
         // Prompt to enable GPS if not enabled and a delivery request was submitted
@@ -295,14 +294,14 @@ public class HomeFragment extends Fragment {
                 Context.LOCATION_SERVICE);
         sharedPreferences = getActivity().getSharedPreferences(PREFS_NAME, 0);
 
-        if(!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-                && sharedPreferences.getString("DeliveryStatus","OFF").equalsIgnoreCase("ON")){
+        if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+                && sharedPreferences.getString("DeliveryStatus", "OFF").equalsIgnoreCase("ON")) {
 
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
             builder.setTitle("NOTICE");
             builder.setMessage("Please enable GPS to be able to take advantage of the " +
                     "Premium Delivery service tracking option.\n" +
-                    "Delivery where you are." );
+                    "Delivery where you are.");
 
             builder.setPositiveButton("Press here", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialogInterface, int i) {
@@ -316,11 +315,12 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    private  boolean isNetworkAvailable() {
+    private boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager
                 = (ConnectivityManager) getActivity().getSystemService(getActivity().CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 }
+
 
