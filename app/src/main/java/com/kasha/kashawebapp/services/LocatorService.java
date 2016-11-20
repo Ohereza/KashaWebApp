@@ -44,8 +44,7 @@ import static com.kasha.kashawebapp.helper.Configs.PREFS_NAME;
  * Created by rkabagamba on 10/13/2016.
  */
 
-public class LocatorService
-            extends Service
+public class LocatorService extends Service
             implements  GoogleApiClient.ConnectionCallbacks,
                         GoogleApiClient.OnConnectionFailedListener,
                         LocationListener {
@@ -222,8 +221,8 @@ public class LocatorService
                                 @Override
                                 public void onResponse(Call<LocationUpdateResponse> call,
                                                        Response<LocationUpdateResponse> response){
-                                   Toast.makeText(getApplicationContext(),"Posting successfull",
-                                            Toast.LENGTH_LONG).show();
+                                   Toast.makeText(getApplicationContext(),"order_id"+ orderKey+
+                                           " response status: "+response.code(),Toast.LENGTH_LONG).show();
                                 }
 
                                 @Override

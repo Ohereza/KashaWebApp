@@ -27,6 +27,7 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
 
 import com.kasha.kashawebapp.R;
 import com.kasha.kashawebapp.services.LocatorService;
@@ -92,6 +93,7 @@ public class HomeFragment extends Fragment {
         rootView = inflater.inflate(R.layout.fragment_home, container, false);
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+        sharedPreferences = getActivity().getSharedPreferences(PREFS_NAME,0);
 
         //mVisible = true;
         kWebView = (WebView) rootView.findViewById(R.id.kashaWebView);
@@ -131,6 +133,11 @@ public class HomeFragment extends Fragment {
 
                 if(orderKey.startsWith("wc_order_")) {
                     Log.d(TAG, "new orderKey: "+orderKey);
+                    // set delivery status to ON for deliver request made
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("DeliveryStatus","ON");
+                    editor.commit();
+
                     promptToEnableLocationAndStartTracking();
                 }
                 view.loadUrl(url);
@@ -150,6 +157,11 @@ public class HomeFragment extends Fragment {
 
                 if(orderKey.startsWith("wc_order_")) {
                     Log.d(TAG, "new orderKey: "+orderKey);
+                    // set delivery status to ON for deliver request made
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("DeliveryStatus","ON");
+                    editor.commit();
+
                     promptToEnableLocationAndStartTracking();
 
                 }
@@ -253,12 +265,6 @@ public class HomeFragment extends Fragment {
                     Intent onGPS = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                     startActivity(onGPS);
 
-                    sharedPreferences = getActivity().getSharedPreferences(PREFS_NAME, 0);
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putString("DeliveryStatus","ON");
-                    editor.commit();
-
-                    trackUserLocation();
                 }
             });
 
@@ -266,6 +272,11 @@ public class HomeFragment extends Fragment {
             alertDialog.setCanceledOnTouchOutside(false);
             alertDialog.show();
         }
+
+        Toast.makeText(getActivity(),"Start tracking user location",
+                Toast.LENGTH_LONG).show();
+        trackUserLocation();
+
     }
 
     protected void trackUserLocation(){
@@ -291,15 +302,16 @@ public class HomeFragment extends Fragment {
 //        mGoogleApiClient.connect();
         //createLocationRequest();
 
-        // Locator service testing:
+        Toast.makeText(getActivity(),"Start locator service",
+                Toast.LENGTH_LONG).show();
+        // Locator service:
         Intent locationServiceIntent = new Intent(getContext(),LocatorService.class);
 
-
         sharedPreferences = getActivity().getSharedPreferences(PREFS_NAME, 0);
-
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("orderKey",orderKey);
         editor.commit();
+
         getActivity().startService(locationServiceIntent);
 
     }
