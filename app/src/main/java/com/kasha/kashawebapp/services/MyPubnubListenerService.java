@@ -187,7 +187,8 @@ public class MyPubnubListenerService extends IntentService {
                 // stop tracking if delivery is completed
                 if (notificationType == 2){
                     SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putString("DeliveryStatus","ON");
+                    editor.putString("DeliveryStatus","OFF");
+                    editor.remove("orderKey");
                     editor.apply();
                 }
             }

@@ -3,6 +3,7 @@ package com.kasha.kashawebapp.fragments;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
@@ -43,7 +44,12 @@ import com.pubnub.api.models.consumer.PNStatus;
 import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
 import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.Arrays;
+
+import static com.kasha.kashawebapp.helper.Configs.PREFS_NAME;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -65,6 +71,7 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
     private LocationRequest mLocationRequest;
     private Marker marker;
     private LocationManager mLocationManager;
+    private SharedPreferences sharedPreferences;
 
     private View rootView;
 
@@ -105,6 +112,7 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
         // Inflate the layout for this fragment
         //return inflater.inflate(R.layout.fragment_location, container, false);
         rootView = inflater.inflate(R.layout.fragment_location, container, false);
+        sharedPreferences = getActivity().getSharedPreferences(PREFS_NAME, 0);
 
         // Create an instance of GoogleAPIClient.
         if (mGoogleApiClient == null) {
@@ -132,7 +140,7 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
         PubNub pubnub = new PubNub(pnConfiguration);
 
         // Subscribe to a channel
-        pubnub.subscribe().channels(Arrays.asList("6fecf37679", "mymaps")).execute();
+        pubnub.subscribe().channels(Arrays.asList(sharedPreferences.getString("orderKey",null))).execute();
 
         // Listen for incoming messages
         //pubnub.addListener(new MyPubnubListenerService());
@@ -164,7 +172,15 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
 
             @Override
             public void message(PubNub pubnub, PNMessageResult message) {
-                zoomToMyLocation = false;
+
+                JSONObject jsonRequest = null;
+                try {
+                    jsonRequest = new JSONObject(String.valueOf(message.getMessage()));
+
+
+                if(message.getMessage().toString().toLowerCase().contains("latlng")){
+
+                    zoomToMyLocation = false;
                     String latLon = message.getMessage().toString().split("(\\{)|(:)|(\\[)|(\\])")[5];
                     double lat = Double.parseDouble(latLon.split(",")[0]);
                     double lon = Double.parseDouble(latLon.split(",")[1]);
@@ -182,7 +198,15 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
                         }
 
                     });
+                } else if (jsonRequest != null && jsonRequest.has("type")
+                        && jsonRequest.getString("type").equalsIgnoreCase("Delivered")) {
+                    mMap.clear();
+                    }
+                    }catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
+
 
             private void updatePolyline() {
                 mMap.clear();
