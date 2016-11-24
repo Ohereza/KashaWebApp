@@ -172,7 +172,7 @@ public class HomeFragment extends Fragment {
                     WebView kWebView = (WebView) v;
                     switch (keyCode) {
                         case KeyEvent.KEYCODE_BACK:
-                            if (kWebView.canGoBack() && (!kWebView.getUrl().contains(webUrl) && !kWebView.getUrl().contains("order-received"))) {
+                            if (kWebView.canGoBack() && (!kWebView.getUrl().equalsIgnoreCase(webUrl) && !kWebView.getUrl().contains("order-received"))) {
                                 kWebView.goBack();
                                 return true;
                             } else if (kWebView.getUrl().contains("order-received") == true && kWebView.canGoBack()) {
