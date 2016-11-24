@@ -105,7 +105,7 @@ public class LocatorService extends Service
         mLocationRequest.setInterval(10000);
         mLocationRequest.setFastestInterval(5000);
         //mLocationRequest.setSmallestDisplacement(100);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
 
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
                 .addLocationRequest(mLocationRequest);
