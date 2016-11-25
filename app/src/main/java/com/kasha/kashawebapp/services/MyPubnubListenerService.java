@@ -6,11 +6,9 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.provider.Settings;
+import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -56,7 +54,7 @@ public class MyPubnubListenerService extends IntentService {
 
     @Override
     public void onCreate() {
-        Toast.makeText(this, "Pubnub listener service started", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "Pubnub listener service started", Toast.LENGTH_SHORT).show();
         super.onCreate();
 
         sharedPreferences = getSharedPreferences(PREFS_NAME, 0);
@@ -67,8 +65,9 @@ public class MyPubnubListenerService extends IntentService {
 
         // Get username
         orderKey = sharedPreferences.getString("orderKey",null);
-        // Subscribe to a channel - the same as the username
-        pubnub.subscribe().channels(Arrays.asList(orderKey)).execute();
+        // Subscribe to a channel - the same as the order id
+        //pubnub.subscribe().channels(Arrays.asList(orderKey)).execute();
+        pubnub.subscribe().channels(Arrays.asList("testChannel")).execute();
 
         Log.v(TAG_PUBNUBLISTENER, "order id: "+orderKey);
     }
@@ -113,13 +112,13 @@ public class MyPubnubListenerService extends IntentService {
                         Log.v(TAG_PUBNUBLISTENER, "json object: " + jsonRequest);
 
                         if (jsonRequest != null && jsonRequest.has("type")
-                                && jsonRequest.getString("type").equalsIgnoreCase("Delivering")) {
+                                && jsonRequest.getString("type").equalsIgnoreCase("Delivering")){
 
                             Log.v(TAG_PUBNUBLISTENER, "Opening a notification bar");
                             notifyUser(1);
 
                         }else if (jsonRequest != null && jsonRequest.has("type")
-                                    && jsonRequest.getString("type").equalsIgnoreCase("Delivered")) {
+                                    && jsonRequest.getString("type").equalsIgnoreCase("Delivered")){
 
                             notifyUser(2);
 
@@ -150,16 +149,28 @@ public class MyPubnubListenerService extends IntentService {
                 mBuilder.setSmallIcon(R.drawable.notification_icon);
                 mBuilder.setContentTitle("Kasha Delivery");
 
+                /* Add Big View Specific Configuration */
+                NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
+
+                // Sets a title for the Inbox style big view
+                inboxStyle.setBigContentTitle("Kasha Delivery");
+
                 if (notificationType == 1){
                     mBuilder.setContentText("Your delivery is under way and" +
                             " progress can be visualized from the map.\n" +
-                            "Thank you for shopping with us");
+                            "Thank you for shopping with us.");
+                    inboxStyle.addLine("Your delivery is under way,");
+                    inboxStyle.addLine("Progress can be visualized from the map.");
+                    inboxStyle.addLine("Thank you for shopping with us.");
                 }
                 else if (notificationType == 2){
                     mBuilder.setContentText("Your delivery is completed.\n" +
                             "Thank you for shopping with us");
+                    inboxStyle.addLine("Your delivery is completed.");
+                    inboxStyle.addLine("Thank you for shopping with us.");
                 }
 
+                mBuilder.setStyle(inboxStyle);
                 mBuilder.setAutoCancel(true);
 
                 // Start of MainActivity on click
@@ -173,16 +184,17 @@ public class MyPubnubListenerService extends IntentService {
                 mBuilder.setContentIntent(resultPendingIntent);
 
                 NotificationManager mNotificationManager =
-                        (NotificationManager) getBaseContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                        (NotificationManager) getBaseContext().getSystemService(
+                                Context.NOTIFICATION_SERVICE);
+
+/*                mBuilder.setSound(Settings.System.DEFAULT_NOTIFICATION_URI);
+                mBuilder.setLights(Color.RED, 3000, 3000);
+                mBuilder.setVibrate(new long[]{1000, 1000});*/
 
                 mNotificationManager.notify(0, mBuilder.build());
 
-                mBuilder.setSound(Settings.System.DEFAULT_NOTIFICATION_URI);
-                mBuilder.setLights(Color.RED, 3000, 3000);
-                mBuilder.setVibrate(new long[]{1000, 1000});
-
-/*                            Vibrator vibrator = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
-                            vibrator.vibrate(500);*/
+                Vibrator vibrator = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
+                vibrator.vibrate(500);
 
                 // stop tracking if delivery is completed
                 if (notificationType == 2){
@@ -194,4 +206,5 @@ public class MyPubnubListenerService extends IntentService {
             }
         });
     }
+
 }
