@@ -1,6 +1,28 @@
-    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+<fragment
         android:id="@+id/map"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="30dp"
         class="com.google.android.gms.maps.SupportMapFragment"
-        android:name="com.kasha.kashawebapp.fragments.LocationFragment"/>
+        android:name="com.kasha.kashawebapp.fragments.LocationFragment">
+        </fragment>
+
+    <TextView
+        android:id="@+id/notification_textview"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:text="No delivery requested yet"
+        android:gravity="center"
+        android:padding="1dp"
+        android:textSize="20dp"
+        android:textColor="#FFF"
+        android:background="#00C"
+        android:layout_alignParentBottom="true" />
+
+    </RelativeLayout>
