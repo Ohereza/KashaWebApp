@@ -27,7 +27,6 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Toast;
 
 import com.kasha.kashawebapp.R;
 import com.kasha.kashawebapp.services.LocatorService;
@@ -83,6 +82,12 @@ public class HomeFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.fragment_home, container, false);
+
+////////////////////////////////////////////////////
+        //  PubnubListner service
+        Intent pubnubListenerService = new Intent(getContext(), MyPubnubListenerService.class);
+        getActivity().startService(pubnubListenerService);
+/////////////////////////////////////////////////////////
 
         sharedPreferences = getActivity().getSharedPreferences(PREFS_NAME,0);
 
@@ -246,8 +251,8 @@ public class HomeFragment extends Fragment {
             alertDialog.show();
         }
 
-        Toast.makeText(getActivity(), "Start tracking user location",
-                Toast.LENGTH_LONG).show();
+/*        Toast.makeText(getActivity(), "Start tracking user location",
+                Toast.LENGTH_LONG).show();*/
         trackUserLocation();
 
     }
@@ -263,8 +268,8 @@ public class HomeFragment extends Fragment {
                     REQUEST_ACCESS_FINE_LOCATION);
         }
 
-        Toast.makeText(getActivity(), "Start locator service",
-                Toast.LENGTH_LONG).show();
+/*        Toast.makeText(getActivity(), "Start locator service",
+                Toast.LENGTH_LONG).show();*/
         // Locator service:
         Intent locationServiceIntent = new Intent(getContext(), LocatorService.class);
         //  PubnubListner service

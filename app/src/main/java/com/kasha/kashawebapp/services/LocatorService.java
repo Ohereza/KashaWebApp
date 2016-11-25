@@ -150,11 +150,11 @@ public class LocatorService extends Service
     public void onLocationChanged(Location location) {
 
         if(sharedPreferences.getString("DeliveryStatus","OFF").equalsIgnoreCase("ON")){
-            Toast.makeText(this, "OnLocation changed", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "OnLocation changed", Toast.LENGTH_SHORT).show();
             LocationWebService locationWebService = new LocationWebService();
             locationWebService.execute(location);
         } else {
-            Toast.makeText(this, "Stopping the locator service", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "Stopping the locator service", Toast.LENGTH_SHORT).show();
             stopSelf();
         }
     }
@@ -229,9 +229,9 @@ public class LocatorService extends Service
                                 @Override
                                 public void onResponse(Call<LocationUpdateResponse> call,
                                                        Response<LocationUpdateResponse> response){
-                                   Toast.makeText(getApplicationContext(),"order_id "+ orderKey+
+/*                                   Toast.makeText(getApplicationContext(),"order_id "+ orderKey+
                                            " response status: "+ response.code() + " " +
-                                           response.message(),Toast.LENGTH_LONG).show();
+                                           response.message(),Toast.LENGTH_LONG).show();*/
                                 }
 
                                 @Override

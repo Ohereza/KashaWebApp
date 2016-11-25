@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">KashaWebApp</string>
+    <string name="app_name">Kasha</string>
 
     <string name="title_activity_fullscreen">FullscreenActivity</string>
     <string name="dummy_button">Dummy Button</string>

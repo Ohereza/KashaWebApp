@@ -200,7 +200,7 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
                     });
                 } else if (jsonRequest != null && jsonRequest.has("type")
                         && jsonRequest.getString("type").equalsIgnoreCase("Delivered")) {
-                    mMap.clear();
+                    //mMap.clear();
                     }
                     }catch (JSONException e) {
                     e.printStackTrace();

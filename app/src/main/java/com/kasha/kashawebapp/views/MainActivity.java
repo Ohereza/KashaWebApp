@@ -62,7 +62,8 @@ public class MainActivity extends AppCompatActivity {
 
         // Create the adapter that will return a fragment for each of the three
     // primary sections of the activity.
-        CustomViewPagerAdapter mCustomViewPagerAdapter = new CustomViewPagerAdapter(getSupportFragmentManager(), getApplicationContext());
+        CustomViewPagerAdapter mCustomViewPagerAdapter = new CustomViewPagerAdapter(
+                getSupportFragmentManager(), getApplicationContext());
 
     // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.container);
