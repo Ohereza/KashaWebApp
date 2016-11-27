@@ -254,10 +254,7 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
                                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation,15));
                                 mMap.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
                             }
-
                         });
-
-
                     }
                     else if (jsonRequest != null && jsonRequest.has("type")
                             && jsonRequest.getString("type").equalsIgnoreCase("Update")) {
@@ -266,9 +263,7 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
                         JSONObject timeAndDistance = new JSONObject(String.valueOf(updates));
                         String remDistance = timeAndDistance.getString("remaining_distance");
                         String remTime = timeAndDistance.getString("remaining_time");
-
                         notificationMSG = "The package will reach here in "+remTime+"secs";
-                        //notificationTextview.setText(notificationMSG);
 
                         try {
                             getActivity().runOnUiThread(new Runnable() {
