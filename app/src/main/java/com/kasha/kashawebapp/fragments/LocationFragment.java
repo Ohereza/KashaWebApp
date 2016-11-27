@@ -17,6 +17,8 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -26,12 +28,14 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -75,6 +79,12 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
     private PolylineOptions mPolylineOptions;
 
     private boolean zoomToMyLocation = true;
+    private boolean zoomToClerkLocation = true;
+
+    private String notificationMSG;
+    private TextView notificationTextview;
+    private ImageView myLocationImg;
+    private ImageView clerkLocationImg;
 
     public LocationFragment() {
         // Required empty public constructor
@@ -97,19 +107,51 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
                     .addApi(LocationServices.API)
                     .build();
         }
-
         mGoogleApiClient.connect();
-
         createLocationRequest();
-
+        notificationMSG = "Looking for my location ...";
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        //return inflater.inflate(R.layout.fragment_location, container, false);
         rootView = inflater.inflate(R.layout.fragment_location, container, false);
+        notificationTextview = (TextView) rootView.findViewById(R.id.notification_textview);
+        notificationTextview.setSelected(true);
+        //notificationTextview.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.move));
+
+        myLocationImg = (ImageView) rootView.findViewById(R.id.imgMyLocation);
+        clerkLocationImg = (ImageView) rootView.findViewById(R.id.imgClerkLocation);
+
+        myLocationImg.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                if(myLocation!=null && mMap!=null) {
+                    Toast.makeText(getActivity(),"Zooming to my location",Toast.LENGTH_SHORT).show();
+                    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(myLocation, 15);
+                    mMap.animateCamera(cameraUpdate);
+                }
+            }
+        });
+
+        clerkLocationImg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(clerkLocation!=null && mMap!=null) {
+                    Toast.makeText(getActivity(),"Zooming to my package",Toast.LENGTH_SHORT).show();
+                    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(clerkLocation, 15);
+                    mMap.animateCamera(cameraUpdate);
+                }
+                else{
+                    Toast.makeText(getActivity(),"No active delivery",Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
+
+        notificationTextview.setText(notificationMSG);
         sharedPreferences = getActivity().getSharedPreferences(PREFS_NAME, 0);
 
         // Create an instance of GoogleAPIClient.
@@ -127,7 +169,6 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
 
         SupportMapFragment mapFrag = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mapFrag.getMapAsync(this);
-
 
         //  PUBNUB
         PNConfiguration pnConfiguration = new PNConfiguration();
@@ -172,32 +213,54 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
                 try {
                     jsonRequest = new JSONObject(String.valueOf(message.getMessage()));
 
+                    if(message.getMessage().toString().toLowerCase().contains("latlng")){
 
-                if(message.getMessage().toString().toLowerCase().contains("latlng")){
+                        zoomToMyLocation = false;
+                        String latLon = message.getMessage().toString().split("(\\{)|(:)|(\\[)|(\\])")[5];
+                        double lat = Double.parseDouble(latLon.split(",")[0]);
+                        double lon = Double.parseDouble(latLon.split(",")[1]);
 
-                    zoomToMyLocation = false;
-                    String latLon = message.getMessage().toString().split("(\\{)|(:)|(\\[)|(\\])")[5];
-                    double lat = Double.parseDouble(latLon.split(",")[0]);
-                    double lon = Double.parseDouble(latLon.split(",")[1]);
+                        clerkLocation = new LatLng(lat, lon);
+                        mPolylineOptions = new PolylineOptions();
+                        mPolylineOptions.color(Color.BLUE).width(10);
 
-                    clerkLocation = new LatLng(lat, lon);
-                    mPolylineOptions = new PolylineOptions();
-                    mPolylineOptions.color(Color.BLUE).width(10);
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                updatePolyline();
+                                updateMarker();
+                                if(zoomToClerkLocation) {
+                                    updateCamera();
+                                }
+                                notificationMSG = "The package is on the way";
+                                notificationTextview.setText(notificationMSG);
+                            }
 
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            updatePolyline();
-                            updateCamera();
-                            updateMarker();
-                        }
-
-                    });
-                } else if (jsonRequest != null && jsonRequest.has("type")
-                        && jsonRequest.getString("type").equalsIgnoreCase("Delivered")) {
-                    //mMap.clear();
+                        });
                     }
-                    }catch (JSONException e) {
+                    else if (jsonRequest != null && jsonRequest.has("type")
+                            && jsonRequest.getString("type").equalsIgnoreCase("Delivered")) {
+
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mMap.clear();
+                                clerkLocation = null;
+                                zoomToMyLocation = true;
+                                notificationMSG = "Your package has been delivered, Thank you for shopping with us! We hope to see you again soon";
+                                notificationTextview.setText(notificationMSG);
+                                Toast.makeText(getActivity(), "Your package has been delivered!", Toast.LENGTH_LONG).show();
+                                mMap.addMarker(new MarkerOptions().position(myLocation).title("Me"));
+                                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation,15));
+                                mMap.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
+                            }
+
+                        });
+
+
+                    }
+                }
+                catch (JSONException e) {
                     e.printStackTrace();
                 }
             }
@@ -211,15 +274,29 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
 
             private void updateMarker() {
                 mMap.addMarker(new MarkerOptions().position(clerkLocation)
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+                        .flat(true)
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_motorcycle_black_35dp))
                         .title("My Package"));
+
                 mMap.addMarker(new MarkerOptions().position(myLocation)
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
                         .title("Me"));
             }
 
             private void updateCamera() {
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(clerkLocation, 14));
+                mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+                    @Override
+                    public void onMapLoaded() {
+                        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                        builder.include(clerkLocation);
+                        builder.include(myLocation);
+                        LatLngBounds bounds = builder.build();
+                        int padding = 65;
+                        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+                        mMap.moveCamera(cu);
+                        mMap.animateCamera(cu);
+                    }
+                });
             }
 
             @Override
@@ -230,7 +307,7 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
         /// End of pubnub////
         //////////////////////
 
-        //rootView.
+        //return the view
         return rootView;
     }
 
@@ -242,6 +319,8 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
+        notificationMSG = " Synchronizing ..... ";
+        notificationTextview.setText(notificationMSG);
 
         if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -253,13 +332,12 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
             double dLatitude = mLastLocation.getLatitude();
             double dLongitude = mLastLocation.getLongitude();
             myLocation = new LatLng(dLatitude, dLongitude);
-            //mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 16.0f));
             mMap.addMarker(new MarkerOptions().position(myLocation).title("Me"));
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation,15));
-            mMap.animateCamera(CameraUpdateFactory.zoomIn());
             mMap.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
+            notificationMSG = " No active delivery .....";
+            notificationTextview.setText(notificationMSG);
         }
-
     }
 
     @Override
@@ -274,38 +352,42 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
 
     @Override
     public void onLocationChanged(Location location) {
-
-        //Log.i("Test Location", String.valueOf(location.getLatitude()));
         if (location != null) {
             double dLatitude = location.getLatitude();
             double dLongitude = location.getLongitude();
             myLocation = new LatLng(dLatitude, dLongitude);
-            if (zoomToMyLocation) {
-                //mMap.animateCamera(CameraUpdateFactory.newLatLng(myLocation));
-                //mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 14));
-
+            if (clerkLocation==null) {
                 mMap.clear();
                 mMap.addMarker(new MarkerOptions().position(myLocation).title("Me"));
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation,15));
-                mMap.animateCamera(CameraUpdateFactory.zoomIn());
-                //mMap.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
-            } else {
-                //mMap.moveCamera(CameraUpdateFactory.newLatLng(myLocation));
-                if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) !=
-                        PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(),
-                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    return;
-                }
-                //mMap.setMyLocationEnabled(true); //addMarker(new MarkerOptions().position(myLocation));
+                mMap.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
+                notificationMSG = " No active delivery ";
+                notificationTextview.setText(notificationMSG);
+            }
+            else {
                 mMap.clear();
                 mMap.addMarker(new MarkerOptions().position(myLocation).title("Me"));
-                if(clerkLocation!=null){
-                    mMap.addMarker(new MarkerOptions().position(clerkLocation)
-                            .title("My Package")
-                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(clerkLocation,15));
-                    mMap.animateCamera(CameraUpdateFactory.zoomIn());
-                }
+                mMap.addMarker(new MarkerOptions().position(clerkLocation)
+                        .title("My Package")
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_motorcycle_black_35dp)));
+
+                mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+                    @Override
+                    public void onMapLoaded() {
+                        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                        builder.include(clerkLocation);
+                        builder.include(myLocation);
+                        LatLngBounds bounds = builder.build();
+
+                        int padding = 65;
+                        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+
+                        mMap.moveCamera(cu);
+                        mMap.animateCamera(cu);
+                    }
+                });
+                notificationMSG = " Delivery in progress .... ";
+                notificationTextview.setText(notificationMSG);
             }
         }
 
@@ -334,14 +416,6 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.getUiSettings().setMapToolbarEnabled(true);
-
-        //check if location permission is granted
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        mMap.setMyLocationEnabled(true);
-
     }
 
     protected void createLocationRequest() {
@@ -349,8 +423,7 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(20000);
         mLocationRequest.setFastestInterval(10000);
-        //mLocationRequest.setSmallestDisplacement(100);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_LOW_POWER);
 
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
                 .addLocationRequest(mLocationRequest);
@@ -358,16 +431,12 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
         final PendingResult<LocationSettingsResult> result =
                 LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient,
                         builder.build());
-
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-
         if (context instanceof Activity) {
-            //act = (Activity) context;
-
             mLocationManager = (LocationManager) getActivity().getSystemService(getContext().LOCATION_SERVICE);
         }
     }
@@ -380,8 +449,9 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
                 ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
-        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+        mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 3000, 50, this);
+        //mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 3000, 50, this);
+        zoomToMyLocation = true;
     }
 
     @Override
