@@ -263,7 +263,7 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
                         JSONObject timeAndDistance = new JSONObject(String.valueOf(updates));
                         String remDistance = timeAndDistance.getString("remaining_distance");
                         String remTime = timeAndDistance.getString("remaining_time");
-                        notificationMSG = "The package will reach here in "+remTime+"secs";
+                        notificationMSG = "Your package reaches you in "+remTime+"secs";
 
                         try {
                             getActivity().runOnUiThread(new Runnable() {
