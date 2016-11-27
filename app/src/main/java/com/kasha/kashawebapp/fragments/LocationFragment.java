@@ -232,8 +232,8 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
                                 if(zoomToClerkLocation) {
                                     updateCamera();
                                 }
-                                notificationMSG = "The package is on the way";
-                                notificationTextview.setText(notificationMSG);
+//                                notificationMSG = "The package is on the way";
+//                                notificationTextview.setText(notificationMSG);
                             }
 
                         });
@@ -254,10 +254,30 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
                                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation,15));
                                 mMap.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
                             }
-
                         });
+                    }
+                    else if (jsonRequest != null && jsonRequest.has("type")
+                            && jsonRequest.getString("type").equalsIgnoreCase("Update")) {
 
+                        String updates = jsonRequest.getString("message");
+                        JSONObject timeAndDistance = new JSONObject(String.valueOf(updates));
+                        String remDistance = timeAndDistance.getString("remaining_distance");
+                        String remTime = timeAndDistance.getString("remaining_time");
+                        notificationMSG = "The package will reach here in "+remTime+"secs";
 
+                        try {
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    //Toast.makeText(getActivity(), notificationMSG , Toast.LENGTH_SHORT).show();
+                                    notificationTextview.setText(notificationMSG);
+                                }
+
+                            });
+                        }
+                        catch (Exception e){
+
+                        }
                     }
                 }
                 catch (JSONException e) {
@@ -415,7 +435,7 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
         mMap = googleMap;
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         mMap.getUiSettings().setZoomControlsEnabled(true);
-        mMap.getUiSettings().setMapToolbarEnabled(true);
+        //mMap.getUiSettings().setMapToolbarEnabled(true);
     }
 
     protected void createLocationRequest() {
