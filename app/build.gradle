@@ -46,5 +46,7 @@ dependencies {
     compile group: 'com.pubnub', name: 'pubnub', version: '4.2.0'
     compile 'com.android.support:multidex:1.0.1'
     compile 'com.android.support:design:24.0.0'
+    compile 'uk.co.chrisjenx:calligraphy:2.2.0'
     testCompile 'junit:junit:4.12'
+
 }
