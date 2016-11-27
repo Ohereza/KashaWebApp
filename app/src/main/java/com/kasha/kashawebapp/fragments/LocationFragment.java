@@ -188,17 +188,14 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
                     // This event happens when radio / connectivity is lost
 
                 } else if (status.getCategory() == PNStatusCategory.PNConnectedCategory) {
-                    // Connect event. You can do stuff like publish, and know you'll get it.
-                    // Or just use the connected event to confirm you are subscribed for
-                    // UI / internal notifications, etc
+
 
                     if (status.getCategory() == PNStatusCategory.PNConnectedCategory) {
 
 
                     }
                 } else if (status.getCategory() == PNStatusCategory.PNReconnectedCategory) {
-                    // Happens as part of our regular operation. This event happens when
-                    // radio / connectivity is lost, then regained.
+
 
                 } else if (status.getCategory() == PNStatusCategory.PNDecryptionErrorCategory) {
                     // Handle messsage decryption error. Probably client configured to
