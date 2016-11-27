@@ -293,14 +293,30 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
             }
 
             private void updateMarker() {
-                mMap.addMarker(new MarkerOptions().position(clerkLocation)
-                        .flat(true)
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_motorcycle_black_35dp))
-                        .title("My Package"));
+               try{
+                   mMap.addMarker(new MarkerOptions().position(clerkLocation)
+                           .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_motorcycle_black_35dp))
+                           .title("My Package"));
 
-                mMap.addMarker(new MarkerOptions().position(myLocation)
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
-                        .title("Me"));
+                   mMap.addMarker(new MarkerOptions().position(myLocation)
+                           .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+                           .title("Me"));
+
+               }
+               catch (Exception e){
+                   mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+                       @Override
+                       public void onMapLoaded() {
+                           mMap.addMarker(new MarkerOptions().position(clerkLocation)
+                                   .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+                                   .title("My Package"));
+
+                           mMap.addMarker(new MarkerOptions().position(myLocation)
+                                   .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+                                   .title("Me"));
+                       }
+                   });
+               }
             }
 
             private void updateCamera() {
@@ -384,26 +400,32 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
                 notificationMSG = " No active delivery ";
                 notificationTextview.setText(notificationMSG);
             }
-            else {
-                mMap.clear();
-                mMap.addMarker(new MarkerOptions().position(myLocation).title("Me"));
-                mMap.addMarker(new MarkerOptions().position(clerkLocation)
-                        .title("My Package")
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_motorcycle_black_35dp)));
+            else if(mMap!=null) {
 
                 mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
                     @Override
                     public void onMapLoaded() {
-                        LatLngBounds.Builder builder = new LatLngBounds.Builder();
-                        builder.include(clerkLocation);
-                        builder.include(myLocation);
-                        LatLngBounds bounds = builder.build();
+                        try {
+                            mMap.clear();
+                            mMap.addMarker(new MarkerOptions().position(myLocation).title("Me"));
+                            mMap.addMarker(new MarkerOptions().position(clerkLocation)
+                                    .title("My Package")
+                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_motorcycle_black_35dp)));
 
-                        int padding = 65;
-                        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+                            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                            builder.include(clerkLocation);
+                            builder.include(myLocation);
+                            LatLngBounds bounds = builder.build();
 
-                        mMap.moveCamera(cu);
-                        mMap.animateCamera(cu);
+                            int padding = 65;
+                            CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+
+                            mMap.moveCamera(cu);
+                            mMap.animateCamera(cu);
+                        }
+                        catch (Exception e){
+
+                        }
                     }
                 });
                 notificationMSG = " Delivery in progress .... ";
