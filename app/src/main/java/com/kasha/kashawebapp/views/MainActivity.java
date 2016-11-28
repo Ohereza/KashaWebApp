@@ -26,8 +26,6 @@ import com.kasha.kashawebapp.R;
 import com.kasha.kashawebapp.adapter.CustomViewPagerAdapter;
 import com.kasha.kashawebapp.fragments.LocationFragment;
 
-import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
-
 public class MainActivity extends AppCompatActivity {
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
@@ -35,8 +33,9 @@ public class MainActivity extends AppCompatActivity {
     private ViewPager mViewPager;
 
     @Override
-    protected void attachBaseContext(Context newBase) {
-        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
+    protected void attachBaseContext(Context context) {
+        super.attachBaseContext(context);
+        //super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
         MultiDex.install(this);
     }
 

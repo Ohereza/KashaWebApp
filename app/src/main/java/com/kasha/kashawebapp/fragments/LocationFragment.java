@@ -177,7 +177,7 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
         PubNub pubnub = new PubNub(pnConfiguration);
 
         // Subscribe to a channel
-        pubnub.subscribe().channels(Arrays.asList(sharedPreferences.getString("orderKey",null))).execute();
+        pubnub.subscribe().channels(Arrays.asList(sharedPreferences.getString("orderKey",null),"thisistest")).execute();
         // Listen for incoming messages
         //pubnub.addListener(new MyPubnubListenerService());
 
@@ -188,17 +188,14 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
                     // This event happens when radio / connectivity is lost
 
                 } else if (status.getCategory() == PNStatusCategory.PNConnectedCategory) {
-                    // Connect event. You can do stuff like publish, and know you'll get it.
-                    // Or just use the connected event to confirm you are subscribed for
-                    // UI / internal notifications, etc
+
 
                     if (status.getCategory() == PNStatusCategory.PNConnectedCategory) {
 
 
                     }
                 } else if (status.getCategory() == PNStatusCategory.PNReconnectedCategory) {
-                    // Happens as part of our regular operation. This event happens when
-                    // radio / connectivity is lost, then regained.
+
 
                 } else if (status.getCategory() == PNStatusCategory.PNDecryptionErrorCategory) {
                     // Handle messsage decryption error. Probably client configured to
@@ -228,8 +225,8 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
                             @Override
                             public void run() {
                                 updatePolyline();
-                                updateMarker();
                                 if(zoomToClerkLocation) {
+                                    updateMarker();
                                     updateCamera();
                                 }
 //                                notificationMSG = "The package is on the way";
@@ -286,24 +283,45 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
             }
 
 
-            private void updatePolyline() {
+            private synchronized void updatePolyline() {
                 mMap.clear();
                 mMap.addPolyline(mPolylineOptions.add(clerkLocation));
 
             }
 
-            private void updateMarker() {
-                mMap.addMarker(new MarkerOptions().position(clerkLocation)
-                        .flat(true)
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_motorcycle_black_35dp))
-                        .title("My Package"));
+            private synchronized void updateMarker() {
+               try{
+                   mMap.addMarker(new MarkerOptions().position(myLocation)
+                           .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+                           .title("Me"));
 
-                mMap.addMarker(new MarkerOptions().position(myLocation)
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
-                        .title("Me"));
+                   mMap.addMarker(new MarkerOptions().position(clerkLocation)
+                           .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+                           .title("My Package"));
+
+//                   mMap.addMarker(new MarkerOptions().position(clerkLocation)
+//                           .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_motorcycle_black_35dp))
+//                           .title("My Package"));
+
+               }
+               catch (Exception e){
+                   Toast.makeText(getActivity(), e.toString(), Toast.LENGTH_SHORT).show();
+                   mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+                       @Override
+                       public void onMapLoaded() {
+                           mMap.addMarker(new MarkerOptions().position(clerkLocation)
+                                   .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+                                   .title("My Package"));
+
+                           mMap.addMarker(new MarkerOptions().position(myLocation)
+                                   .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+                                   .title("Me"));
+                       }
+                   });
+               }
             }
 
-            private void updateCamera() {
+            private synchronized void updateCamera() {
                 mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
                     @Override
                     public void onMapLoaded() {
@@ -376,34 +394,43 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
             double dLatitude = location.getLatitude();
             double dLongitude = location.getLongitude();
             myLocation = new LatLng(dLatitude, dLongitude);
-            if (clerkLocation==null) {
+            if (clerkLocation==null && mMap !=null) {
                 mMap.clear();
+                mMap.setOnMapLoadedCallback(null);
                 mMap.addMarker(new MarkerOptions().position(myLocation).title("Me"));
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation,15));
                 mMap.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
                 notificationMSG = " No active delivery ";
                 notificationTextview.setText(notificationMSG);
             }
-            else {
-                mMap.clear();
-                mMap.addMarker(new MarkerOptions().position(myLocation).title("Me"));
-                mMap.addMarker(new MarkerOptions().position(clerkLocation)
-                        .title("My Package")
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_motorcycle_black_35dp)));
+            else if(mMap!=null) {
 
                 mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
                     @Override
                     public void onMapLoaded() {
-                        LatLngBounds.Builder builder = new LatLngBounds.Builder();
-                        builder.include(clerkLocation);
-                        builder.include(myLocation);
-                        LatLngBounds bounds = builder.build();
+                        try {
+                            mMap.clear();
+                            mMap.setOnMapLoadedCallback(null);
+                            mMap.addMarker(new MarkerOptions().position(myLocation).title("Me"));
+                            mMap.addMarker(new MarkerOptions().position(clerkLocation)
+                                    //.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_motorcycle_black_35dp)));
+                                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+                                    .title("My Package"));
 
-                        int padding = 65;
-                        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+                            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                            builder.include(clerkLocation);
+                            builder.include(myLocation);
+                            LatLngBounds bounds = builder.build();
 
-                        mMap.moveCamera(cu);
-                        mMap.animateCamera(cu);
+                            int padding = 65;
+                            CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+
+                            mMap.moveCamera(cu);
+                            mMap.animateCamera(cu);
+                        }
+                        catch (Exception e){
+
+                        }
                     }
                 });
                 notificationMSG = " Delivery in progress .... ";
