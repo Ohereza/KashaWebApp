@@ -29,8 +29,8 @@ import com.kasha.kashawebapp.fragments.LocationFragment;
 public class MainActivity extends AppCompatActivity {
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
-
     private ViewPager mViewPager;
+
 
     @Override
     protected void attachBaseContext(Context context) {

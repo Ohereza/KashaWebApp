@@ -7,6 +7,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
 import com.kasha.kashawebapp.R;
+import com.kasha.kashawebapp.fragments.HistoryFragment;
 import com.kasha.kashawebapp.fragments.HomeFragment;
 import com.kasha.kashawebapp.fragments.LocationFragment;
 
@@ -33,6 +34,8 @@ public class CustomViewPagerAdapter extends FragmentStatePagerAdapter {
                 return new HomeFragment();
             case 1:
                 return new LocationFragment();
+            case 2:
+                return new HistoryFragment();
         }
         return null;
     }

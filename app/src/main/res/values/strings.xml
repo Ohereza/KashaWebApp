@@ -8,8 +8,9 @@
     <!--<string name="section_format">Hello World from section: %1$d</string>-->
 
     <string-array name="tabs_titles_array">
-        <item>Kasha</item>
+        <item>Home</item>
         <item>Map</item>
+        <item>History</item>
     </string-array>
 
 </resources>
