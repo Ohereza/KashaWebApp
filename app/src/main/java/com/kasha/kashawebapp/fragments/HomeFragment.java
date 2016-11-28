@@ -278,7 +278,7 @@ public class HomeFragment extends Fragment {
         sharedPreferences = getActivity().getSharedPreferences(PREFS_NAME, 0);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("orderKey", orderKey);
-        editor.commit();
+        editor.apply();
 
         // start services
         getActivity().startService(locationServiceIntent);

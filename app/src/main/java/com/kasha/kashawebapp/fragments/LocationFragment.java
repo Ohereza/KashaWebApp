@@ -55,6 +55,7 @@ import org.json.JSONObject;
 import java.util.Arrays;
 
 import static com.kasha.kashawebapp.helper.Configs.PREFS_NAME;
+import static java.lang.Math.round;
 
 public class LocationFragment extends Fragment implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
@@ -177,7 +178,7 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
         PubNub pubnub = new PubNub(pnConfiguration);
 
         // Subscribe to a channel
-        pubnub.subscribe().channels(Arrays.asList(sharedPreferences.getString("orderKey",null),"thisistest")).execute();
+        pubnub.subscribe().channels(Arrays.asList(sharedPreferences.getString("orderKey",null))).execute();
         // Listen for incoming messages
         //pubnub.addListener(new MyPubnubListenerService());
 
@@ -244,7 +245,7 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
                                 mMap.clear();
                                 clerkLocation = null;
                                 zoomToMyLocation = true;
-                                notificationMSG = "Your package has been delivered, Thank you for shopping with us! We hope to see you again soon";
+                                notificationMSG = "Your package has been delivered, We hope to see you again soon";
                                 notificationTextview.setText(notificationMSG);
                                 Toast.makeText(getActivity(), "Your package has been delivered!", Toast.LENGTH_LONG).show();
                                 mMap.addMarker(new MarkerOptions().position(myLocation).title("Me"));
@@ -259,8 +260,8 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
                         String updates = jsonRequest.getString("message");
                         JSONObject timeAndDistance = new JSONObject(String.valueOf(updates));
                         String remDistance = timeAndDistance.getString("remaining_distance");
-                        String remTime = timeAndDistance.getString("remaining_time");
-                        notificationMSG = "Your package reaches you in "+remTime+"secs";
+                        int remTime = timeAndDistance.getInt("remaining_time");
+                        notificationMSG = "Your package reaches you in "+(round(remTime/60))+"Min.";
 
                         try {
                             getActivity().runOnUiThread(new Runnable() {
