@@ -12,8 +12,10 @@ import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.kasha.kashawebapp.DB.KashaWebAppDBHelper;
 import com.kasha.kashawebapp.R;
 import com.kasha.kashawebapp.helper.Configs;
+import com.kasha.kashawebapp.helper.Util;
 import com.kasha.kashawebapp.views.MainActivity;
 import com.pubnub.api.PNConfiguration;
 import com.pubnub.api.PubNub;
@@ -26,7 +28,7 @@ import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 
 import static com.kasha.kashawebapp.helper.Configs.PREFS_NAME;
 
@@ -45,6 +47,8 @@ public class MyPubnubListenerService extends IntentService {
 
     private LatLng clientLocation;
     private boolean zoomToClient = true;
+    private KashaWebAppDBHelper mydb;
+    private ArrayList<String> activeOrders;
 
     private PolylineOptions mPolylineOptions;
 
@@ -57,6 +61,7 @@ public class MyPubnubListenerService extends IntentService {
         //Toast.makeText(this, "Pubnub listener service started", Toast.LENGTH_SHORT).show();
         super.onCreate();
 
+        mydb = KashaWebAppDBHelper.getInstance(getApplicationContext());
         sharedPreferences = getSharedPreferences(PREFS_NAME, 0);
         pnConfiguration = new PNConfiguration();
         pnConfiguration.setSubscribeKey(Configs.pubnub_subscribeKey);
@@ -64,9 +69,11 @@ public class MyPubnubListenerService extends IntentService {
         pubnub = new PubNub(pnConfiguration);
 
         // Get username
-        orderKey = sharedPreferences.getString("orderKey",null);
+        //orderKey = sharedPreferences.getString("orderKey",null);
+        activeOrders = Util.getStringArrayFromColumnCursor(mydb.getAllActiveOrders());
         // Subscribe to a channel - the same as the order id
-        pubnub.subscribe().channels(Arrays.asList(orderKey)).execute();
+        //pubnub.subscribe().channels(Arrays.asList(orderKey)).execute();
+        pubnub.subscribe().channels(activeOrders).execute();
         //pubnub.subscribe().channels(Arrays.asList("testChannel")).execute();
 
         Log.v(TAG_PUBNUBLISTENER, "order id: "+orderKey);
@@ -112,16 +119,26 @@ public class MyPubnubListenerService extends IntentService {
                         Log.v(TAG_PUBNUBLISTENER, "json object: " + jsonRequest);
 
                         if (jsonRequest != null && jsonRequest.has("type")
+                                && jsonRequest.getString("type").equalsIgnoreCase("Assigned")){
+
+                            Log.v(TAG_PUBNUBLISTENER, "Opening a notification bar");
+                            orderKey = message.getChannel();
+                            //orderKey = jsonRequest.getString("order_id");
+                            notifyUser(1);
+
+                        } else if (jsonRequest != null && jsonRequest.has("type")
                                 && jsonRequest.getString("type").equalsIgnoreCase("Delivering")){
 
                             Log.v(TAG_PUBNUBLISTENER, "Opening a notification bar");
-                            notifyUser(1);
+                            orderKey = message.getChannel();
+                            //orderKey = jsonRequest.getString("order_id");
+                            notifyUser(2);
 
                         }else if (jsonRequest != null && jsonRequest.has("type")
                                     && jsonRequest.getString("type").equalsIgnoreCase("Delivered")){
-
-                            notifyUser(2);
-
+                            orderKey = message.getChannel();
+                            //orderKey = jsonRequest.getString("order_id");
+                            notifyUser(3);
                         }
 
                     } catch (JSONException e) {
@@ -156,19 +173,53 @@ public class MyPubnubListenerService extends IntentService {
                 inboxStyle.setBigContentTitle("Kasha Delivery");
 
                 if (notificationType == 1){
+                    mBuilder.setContentText("Your order is well received. \n" +
+                            "One of our delivery clerk picked your order," +
+                            " please expect your delivery soon.\n" +
+                            "Thank you for shopping with us.");
+                    inboxStyle.addLine("Your order is well received.");
+                    inboxStyle.addLine("One of our delivery clerk picked your order,");
+                    inboxStyle.addLine("please expect your delivery soon.");
+                    inboxStyle.addLine("Thank you for shopping with us.");
+
+                    // Save notification
+                    String msg = "Your order is well received. \n" +
+                            "One of our delivery clerk will pick your order," +
+                            " please expect your delivery soon.\n" +
+                            "Thank you for shopping with us.";
+                    mydb.insertNotification(orderKey,msg,Util.getCurrentTimestamp());
+
+                } else if (notificationType == 2){
                     mBuilder.setContentText("Your delivery is under way and" +
                             " progress can be visualized from the map.\n" +
                             "Thank you for shopping with us.");
                     inboxStyle.addLine("Your delivery is under way,");
                     inboxStyle.addLine("Progress can be visualized from the map.");
                     inboxStyle.addLine("Thank you for shopping with us.");
+
+                    // Save notification
+                    String msg = "Your delivery is under way and" +
+                            " progress can be visualized from the map.\n" +
+                            "Thank you for shopping with us.";
+                    mydb.insertNotification(orderKey,msg,Util.getCurrentTimestamp());
+
                 }
-                else if (notificationType == 2){
+                else if (notificationType == 3){
                     mBuilder.setContentText("Your delivery is completed.\n" +
                             "Thank you for shopping with us");
                     inboxStyle.addLine("Your delivery is completed.");
                     inboxStyle.addLine("Thank you for shopping with us.");
+
+                    // Save notification
+                    String msg = "Your delivery is completed.\n" +
+                            "Thank you for shopping with us";
+                    mydb.insertNotification(orderKey,msg,Util.getCurrentTimestamp());
+                    mydb.setDeliveryStatus(orderKey,2);
+
                 }
+
+
+                Log.d("App","pubnub notificaiton, order key: "+ orderKey);
 
                 mBuilder.setStyle(inboxStyle);
                 mBuilder.setAutoCancel(true);
@@ -200,7 +251,7 @@ public class MyPubnubListenerService extends IntentService {
                 if (notificationType == 2){
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putString("DeliveryStatus","OFF");
-                    editor.remove("orderKey");
+                    //editor.remove("orderKey");
                     editor.apply();
                 }
             }

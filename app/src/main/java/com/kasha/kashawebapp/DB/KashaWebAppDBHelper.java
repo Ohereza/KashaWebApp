@@ -23,10 +23,12 @@ public class KashaWebAppDBHelper extends SQLiteOpenHelper {
 
     private static final String SQL_CREATE_DELIVERIES =
             "CREATE TABLE " + KashaWebAppDBContract.Deliveries.TABLE_NAME + " (" +
+                    KashaWebAppDBContract.Deliveries.COLUMN_NAME_ID + INT_TYPE + "AUTOINCREMENT," +
                     KashaWebAppDBContract.Deliveries.COLUMN_NAME_ORDER_ID + TEXT_TYPE + "," +
                     KashaWebAppDBContract.Deliveries.COLUMN_NAME_TIMESTAMP + DATE_TYPE + "," +
                     KashaWebAppDBContract.Deliveries.COLUMN_NAME_STATUS + INT_TYPE + "," +
-                    " PRIMARY KEY ("+KashaWebAppDBContract.Deliveries.COLUMN_NAME_ORDER_ID+"))";
+                    " PRIMARY KEY ("+KashaWebAppDBContract.Deliveries.COLUMN_NAME_ID +","
+                    +KashaWebAppDBContract.Deliveries.COLUMN_NAME_ORDER_ID+"))";
 
     private static final String SQL_CREATE_NOTIFICATIONS =
             "CREATE TABLE " + KashaWebAppDBContract.Notifications.TABLE_NAME + " (" +
@@ -94,19 +96,21 @@ public class KashaWebAppDBHelper extends SQLiteOpenHelper {
     public Cursor getAllOrders(){
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor res;
-        res =  db.rawQuery( "select * from " + KashaWebAppDBContract.Deliveries.TABLE_NAME, null );
+        res =  db.rawQuery( "select "+ KashaWebAppDBContract.Deliveries.COLUMN_NAME_ORDER_ID
+                +" from " + KashaWebAppDBContract.Deliveries.TABLE_NAME
+                + " order by "+KashaWebAppDBContract.Deliveries.COLUMN_NAME_ID +" desc", null );
         return res;
     }
 
     public Cursor getAllActiveOrders(){
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor res;
-        res =  db.rawQuery( "select * from " + KashaWebAppDBContract.Deliveries.TABLE_NAME +
+        res =  db.rawQuery( "select " + KashaWebAppDBContract.Deliveries.COLUMN_NAME_ORDER_ID
+                + " from " + KashaWebAppDBContract.Deliveries.TABLE_NAME +
                 " where "+KashaWebAppDBContract.Deliveries.COLUMN_NAME_STATUS
                 +"="+ KashaWebAppDBContract.Deliveries.ACTIVE_STATUS, null );
         return res;
     }
-
 
     public void setDeliveryStatus(String order_id, int newStatus){
             SQLiteDatabase db = this.getWritableDatabase();
@@ -118,7 +122,6 @@ public class KashaWebAppDBHelper extends SQLiteOpenHelper {
                         "='" + order_id + "'");
             }
         }
-
 
     public Cursor getAllNotificationsToAnOrder(String order_id){
         SQLiteDatabase db = this.getReadableDatabase();

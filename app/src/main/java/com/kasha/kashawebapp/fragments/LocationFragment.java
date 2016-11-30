@@ -39,8 +39,10 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.kasha.kashawebapp.DB.KashaWebAppDBHelper;
 import com.kasha.kashawebapp.R;
 import com.kasha.kashawebapp.helper.Configs;
+import com.kasha.kashawebapp.helper.Util;
 import com.pubnub.api.PNConfiguration;
 import com.pubnub.api.PubNub;
 import com.pubnub.api.callbacks.SubscribeCallback;
@@ -52,7 +54,7 @@ import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 
 import static com.kasha.kashawebapp.helper.Configs.PREFS_NAME;
 import static java.lang.Math.round;
@@ -69,6 +71,8 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
     private SharedPreferences sharedPreferences;
 
     private View rootView;
+    private KashaWebAppDBHelper mydb;
+    private ArrayList<String> activeOrders;
 
     private OnFragmentInteractionListener mListener;
 
@@ -118,6 +122,8 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.fragment_location, container, false);
+
+        mydb = KashaWebAppDBHelper.getInstance(getContext());
         notificationTextview = (TextView) rootView.findViewById(R.id.notification_textview);
         notificationTextview.setSelected(true);
         //notificationTextview.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.move));
@@ -171,6 +177,8 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
         SupportMapFragment mapFrag = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mapFrag.getMapAsync(this);
 
+        activeOrders = Util.getStringArrayFromColumnCursor(mydb.getAllActiveOrders());
+
         //  PUBNUB
         PNConfiguration pnConfiguration = new PNConfiguration();
         pnConfiguration.setSubscribeKey(Configs.pubnub_subscribeKey);
@@ -178,7 +186,8 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
         PubNub pubnub = new PubNub(pnConfiguration);
 
         // Subscribe to a channel
-        pubnub.subscribe().channels(Arrays.asList(sharedPreferences.getString("orderKey",null))).execute();
+        //pubnub.subscribe().channels(Arrays.asList(sharedPreferences.getString("orderKey",null))).execute();
+        pubnub.subscribe().channels(activeOrders).execute();
         // Listen for incoming messages
         //pubnub.addListener(new MyPubnubListenerService());
 

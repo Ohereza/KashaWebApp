@@ -28,9 +28,13 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.kasha.kashawebapp.DB.KashaWebAppDBContract;
+import com.kasha.kashawebapp.DB.KashaWebAppDBHelper;
 import com.kasha.kashawebapp.R;
+import com.kasha.kashawebapp.helper.Util;
 import com.kasha.kashawebapp.services.LocatorService;
 import com.kasha.kashawebapp.services.MyPubnubListenerService;
+import com.kasha.kashawebapp.views.MainActivity;
 
 import static com.kasha.kashawebapp.helper.Configs.PREFS_NAME;
 
@@ -47,6 +51,8 @@ public class HomeFragment extends Fragment {
 
     private View rootView;
     private WebView kWebView;
+
+    private KashaWebAppDBHelper mydb;
 
     private static final int REQUEST_ACCESS_FINE_LOCATION = 0;
 //    private GoogleApiClient mGoogleApiClient = null;
@@ -82,7 +88,7 @@ public class HomeFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.fragment_home, container, false);
-
+        mydb = KashaWebAppDBHelper.getInstance(getContext());
 ////////////////////////////////////////////////////
         //  PubnubListner service
         Intent pubnubListenerService = new Intent(getContext(), MyPubnubListenerService.class);
@@ -128,6 +134,7 @@ public class HomeFragment extends Fragment {
                     editor.apply();
 
                     promptToEnableLocationAndStartTracking();
+                    MainActivity.mViewPager.setCurrentItem(1);
                 }
                 view.loadUrl(url);
                 return false;
@@ -151,6 +158,7 @@ public class HomeFragment extends Fragment {
                     editor.apply();
 
                     promptToEnableLocationAndStartTracking();
+                    MainActivity.mViewPager.setCurrentItem(1);
 
                 }
                 view.loadUrl(url);
@@ -279,6 +287,10 @@ public class HomeFragment extends Fragment {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("orderKey", orderKey);
         editor.apply();
+
+        // store new order in db
+        mydb.insertDelivery(orderKey, Util.getCurrentTimestamp(),
+                KashaWebAppDBContract.Deliveries.ACTIVE_STATUS);
 
         // start services
         getActivity().startService(locationServiceIntent);

@@ -1,6 +1,7 @@
 package com.kasha.kashawebapp.adapter;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.kasha.kashawebapp.R;
+import com.kasha.kashawebapp.helper.Util;
 
 public class MyOrdersListViewAdapter extends ArrayAdapter<String>{
 
@@ -17,9 +19,11 @@ public class MyOrdersListViewAdapter extends ArrayAdapter<String>{
     private  String selectedOrder;
     private TextView theTextView;
     private ImageView theImageView;
+    private Util util;
 
-    public MyOrdersListViewAdapter(Context context, String[] values) {
-        super(context, R.layout.row_layout_2,R.id.row_text_view_2,values);
+    public MyOrdersListViewAdapter(Context context, Cursor res) {
+        super(context,R.layout.row_layout_2,R.id.row_text_view_2,
+                Util.getStringArrayFromColumnCursor(res));
     }
 
     @Override

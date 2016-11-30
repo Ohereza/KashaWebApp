@@ -25,11 +25,15 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
+import com.kasha.kashawebapp.DB.KashaWebAppDBHelper;
 import com.kasha.kashawebapp.helper.Configs;
 import com.kasha.kashawebapp.helper.LocationUpdateResponse;
 import com.kasha.kashawebapp.helper.LocationUpdater;
 import com.kasha.kashawebapp.helper.LoginResponse;
+import com.kasha.kashawebapp.helper.Util;
 import com.kasha.kashawebapp.interfaces.PdsAPI;
+
+import java.util.ArrayList;
 
 import okhttp3.OkHttpClient;
 import retrofit2.Call;
@@ -65,9 +69,14 @@ public class LocatorService extends Service
     private SharedPreferences sharedPreferences;
     private String orderKey;
 
+    private KashaWebAppDBHelper mydb;
+    private ArrayList<String> activeOrders;
+
     @Override
     public void onCreate() {
         super.onCreate();
+        mydb = KashaWebAppDBHelper.getInstance(getApplicationContext());
+
         Toast.makeText(this, "on create LocatorService", Toast.LENGTH_SHORT).show();
 
         // Create an instance of GoogleAPIClient.
@@ -93,6 +102,7 @@ public class LocatorService extends Service
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        activeOrders = Util.getStringArrayFromColumnCursor(mydb.getAllActiveOrders());
         sharedPreferences = getSharedPreferences(PREFS_NAME, 0);
         orderKey = sharedPreferences.getString("orderKey","NONE");
         //orderKey = intent.getStringExtra("orderKey");
@@ -148,7 +158,6 @@ public class LocatorService extends Service
 
     @Override
     public void onLocationChanged(Location location) {
-
         if(sharedPreferences.getString("DeliveryStatus","OFF").equalsIgnoreCase("ON")){
             //Toast.makeText(this, "OnLocation changed", Toast.LENGTH_SHORT).show();
             LocationWebService locationWebService = new LocationWebService();
@@ -220,27 +229,29 @@ public class LocatorService extends Service
             pdsAPI.login(bckend_username, bckend_password).enqueue(new Callback<LoginResponse>() {
                 @Override
                 public void onResponse(Call<LoginResponse> call,
-                                       Response<LoginResponse> response){
-
-                    pdsAPI.updateLocation( new LocationUpdater(orderKey,"Client",
-                            String.valueOf(mCurrentLocation.getLongitude()),
-                            String.valueOf(mCurrentLocation.getLatitude()))).enqueue(
-                            new Callback<LocationUpdateResponse>() {
-                                @Override
-                                public void onResponse(Call<LocationUpdateResponse> call,
-                                                       Response<LocationUpdateResponse> response){
+                                       Response<LoginResponse> response) {
+                    for (int i = 0; i < activeOrders.size(); i++){
+                        pdsAPI.updateLocation(new LocationUpdater(activeOrders.get(i), "Client",
+                                String.valueOf(mCurrentLocation.getLongitude()),
+                                String.valueOf(mCurrentLocation.getLatitude()))).enqueue(
+                                new Callback<LocationUpdateResponse>() {
+                                    @Override
+                                    public void onResponse(Call<LocationUpdateResponse> call,
+                                                           Response<LocationUpdateResponse> response) {
 /*                                   Toast.makeText(getApplicationContext(),"order_id "+ orderKey+
                                            " response status: "+ response.code() + " " +
                                            response.message(),Toast.LENGTH_LONG).show();*/
-                                }
+                                    }
 
-                                @Override
-                                public void onFailure(Call<LocationUpdateResponse> call, Throwable t){
+                                    @Override
+                                    public void onFailure(Call<LocationUpdateResponse> call, Throwable t) {
                /*                     Toast.makeText(getApplicationContext(),"Posting unsuccessfull",
                                             Toast.LENGTH_LONG).show();*/
+                                    }
                                 }
-                            }
-                    );
+                        );
+
+                    }
                 }
 
                 @Override

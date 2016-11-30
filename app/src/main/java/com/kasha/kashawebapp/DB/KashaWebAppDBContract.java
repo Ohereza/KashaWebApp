@@ -13,6 +13,7 @@ public class KashaWebAppDBContract {
     /* Inner class that defines the table contents */
     public static abstract class Deliveries implements BaseColumns {
         public static final String TABLE_NAME = "deliveries";
+        public static final String COLUMN_NAME_ID = "id";
         public static final String COLUMN_NAME_ORDER_ID = "order_id";
         public static final String COLUMN_NAME_TIMESTAMP = "timestamp";
         public static final String COLUMN_NAME_STATUS = "status";
