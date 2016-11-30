@@ -70,6 +70,7 @@ public class HistoryFragment extends Fragment {
                                                 mydb.getAllNotificationsToAnOrder(selectedOrder));
 
                 for(String timestamp:notifications.keySet()){
+
                     listMessages.add(new Msg("", "", notifications.get(timestamp), "", false, "", "", timestamp ));
                 }
 /*                for (int i=0; i<notifications.size();i++) {

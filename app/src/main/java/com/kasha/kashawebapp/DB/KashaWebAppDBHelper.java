@@ -35,7 +35,8 @@ public class KashaWebAppDBHelper extends SQLiteOpenHelper {
                     KashaWebAppDBContract.Notifications.COLUMN_NAME_ORDER_ID + TEXT_TYPE + "," +
                     KashaWebAppDBContract.Notifications.COLUMN_NAME_MESSAGE + TEXT_TYPE + "," +
                     KashaWebAppDBContract.Notifications.COLUMN_NAME_TIMESTAMP + DATE_TYPE + "," +
-                    " PRIMARY KEY ("+KashaWebAppDBContract.Notifications.COLUMN_NAME_ORDER_ID+"))";
+                    " PRIMARY KEY ("+KashaWebAppDBContract.Notifications.COLUMN_NAME_ORDER_ID + ","
+                    +KashaWebAppDBContract.Notifications.COLUMN_NAME_MESSAGE+"))";
 
     private static final String SQL_DELETE_DELIVERIES =
             "DROP TABLE IF EXISTS " + KashaWebAppDBContract.Deliveries.TABLE_NAME;
