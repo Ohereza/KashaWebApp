@@ -14,6 +14,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -230,121 +231,35 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
                         clerkLocation = new LatLng(lat, lon);
                         mPolylineOptions = new PolylineOptions();
                         mPolylineOptions.color(Color.BLUE).width(10);
+                        LocationFragment.this.updatePolyline();
+                    }
+                    else if (jsonRequest != null && jsonRequest.has("type")
+                            && jsonRequest.getString("type").equalsIgnoreCase("Delivering")) {
 
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                updatePolyline();
-                                if(zoomToClerkLocation) {
-                                    updateMarker();
-                                    updateCamera();
-                                }
-//                                notificationMSG = "The package is on the way";
-//                                notificationTextview.setText(notificationMSG);
-                            }
-
-                        });
+                        zoomToMyLocation = false;
+                        LocationFragment.this.changeStatusToDelivering();
                     }
                     else if (jsonRequest != null && jsonRequest.has("type")
                             && jsonRequest.getString("type").equalsIgnoreCase("Delivered")) {
+                        LocationFragment.this.changeStatusToDelivered();
 
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                mMap.clear();
-                                clerkLocation = null;
-                                zoomToMyLocation = true;
-                                notificationMSG = "Your package has been delivered, We hope to see you again soon";
-                                notificationTextview.setText(notificationMSG);
-                                Toast.makeText(getActivity(), "Your package has been delivered!", Toast.LENGTH_LONG).show();
-                                mMap.addMarker(new MarkerOptions().position(myLocation).title("Me"));
-                                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation,15));
-                                mMap.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
-                            }
-                        });
                     }
                     else if (jsonRequest != null && jsonRequest.has("type")
                             && jsonRequest.getString("type").equalsIgnoreCase("Update")) {
 
+
                         String updates = jsonRequest.getString("message");
                         JSONObject timeAndDistance = new JSONObject(String.valueOf(updates));
-                        String remDistance = timeAndDistance.getString("remaining_distance");
+                        //String remDistance = timeAndDistance.getString("remaining_distance");
                         int remTime = timeAndDistance.getInt("remaining_time");
                         notificationMSG = "Your package reaches you in "+(round(remTime/60))+"Min.";
+                        LocationFragment.this.changeNotificationRemainningTime(notificationMSG);
 
-                        try {
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    //Toast.makeText(getActivity(), notificationMSG , Toast.LENGTH_SHORT).show();
-                                    notificationTextview.setText(notificationMSG);
-                                }
-
-                            });
-                        }
-                        catch (Exception e){
-
-                        }
                     }
                 }
                 catch (JSONException e) {
-                    e.printStackTrace();
+                    Log.e("client app", e.toString());
                 }
-            }
-
-
-            private synchronized void updatePolyline() {
-                mMap.clear();
-                mMap.addPolyline(mPolylineOptions.add(clerkLocation));
-
-            }
-
-            private synchronized void updateMarker() {
-               try{
-                   mMap.addMarker(new MarkerOptions().position(myLocation)
-                           .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
-                           .title("Me"));
-
-                   mMap.addMarker(new MarkerOptions().position(clerkLocation)
-                           .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
-                           .title("My Package"));
-
-//                   mMap.addMarker(new MarkerOptions().position(clerkLocation)
-//                           .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_motorcycle_black_35dp))
-//                           .title("My Package"));
-
-               }
-               catch (Exception e){
-                   Toast.makeText(getActivity(), e.toString(), Toast.LENGTH_SHORT).show();
-                   mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
-                       @Override
-                       public void onMapLoaded() {
-                           mMap.addMarker(new MarkerOptions().position(clerkLocation)
-                                   .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
-                                   .title("My Package"));
-
-                           mMap.addMarker(new MarkerOptions().position(myLocation)
-                                   .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
-                                   .title("Me"));
-                       }
-                   });
-               }
-            }
-
-            private synchronized void updateCamera() {
-                mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
-                    @Override
-                    public void onMapLoaded() {
-                        LatLngBounds.Builder builder = new LatLngBounds.Builder();
-                        builder.include(clerkLocation);
-                        builder.include(myLocation);
-                        LatLngBounds bounds = builder.build();
-                        int padding = 65;
-                        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
-                        mMap.moveCamera(cu);
-                        mMap.animateCamera(cu);
-                    }
-                });
             }
 
             @Override
@@ -380,11 +295,9 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
             double dLatitude = mLastLocation.getLatitude();
             double dLongitude = mLastLocation.getLongitude();
             myLocation = new LatLng(dLatitude, dLongitude);
-            mMap.addMarker(new MarkerOptions().position(myLocation).title("Me"));
+            mMap.addMarker(new MarkerOptions().position(myLocation).title("Me")).showInfoWindow();
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation,15));
             mMap.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
-            notificationMSG = " No active delivery .....";
-            notificationTextview.setText(notificationMSG);
         }
     }
 
@@ -407,7 +320,7 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
             if (clerkLocation==null && mMap !=null) {
                 mMap.clear();
                 mMap.setOnMapLoadedCallback(null);
-                mMap.addMarker(new MarkerOptions().position(myLocation).title("Me"));
+                mMap.addMarker(new MarkerOptions().position(myLocation).title("Me")).showInfoWindow();
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation,15));
                 mMap.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
                 notificationMSG = " No active delivery ";
@@ -421,7 +334,7 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
                         try {
                             mMap.clear();
                             mMap.setOnMapLoadedCallback(null);
-                            mMap.addMarker(new MarkerOptions().position(myLocation).title("Me"));
+                            mMap.addMarker(new MarkerOptions().position(myLocation).title("Me")).showInfoWindow();
                             mMap.addMarker(new MarkerOptions().position(clerkLocation)
                                     //.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_motorcycle_black_35dp)));
                                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
@@ -495,6 +408,7 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
         super.onAttach(context);
         if (context instanceof Activity) {
             mLocationManager = (LocationManager) getActivity().getSystemService(getContext().LOCATION_SERVICE);
+            //mActivity = context;
         }
     }
 
@@ -520,6 +434,88 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
             return;
         }
         mLocationManager.removeUpdates(this);
+    }
+
+    private void updatePolyline() {
+        if(getActivity()==null)
+            return;
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mMap.clear();
+                mMap.addPolyline(mPolylineOptions.add(clerkLocation));
+                mMap.addMarker(new MarkerOptions().position(myLocation)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+                        .title("Me")).showInfoWindow();
+
+                mMap.addMarker(new MarkerOptions().position(clerkLocation)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+                        .title("My Package")).showInfoWindow();
+
+                mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+                    @Override
+                    public void onMapLoaded() {
+                        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                        builder.include(clerkLocation);
+                        builder.include(myLocation);
+                        LatLngBounds bounds = builder.build();
+                        int padding = 65;
+                        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+                        mMap.moveCamera(cu);
+                        mMap.animateCamera(cu);
+                    }
+                });
+            }
+
+        });
+
+    }
+
+    private void changeStatusToDelivering(){
+        notificationMSG = "Your package is on the way";
+        if(getActivity()==null)
+            return;
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                notificationTextview.setText(notificationMSG);
+                Toast.makeText(getActivity(), "Your package is on the way", Toast.LENGTH_LONG).show();
+            }
+        });
+
+
+    }
+
+    private void changeStatusToDelivered(){
+        mMap.clear();
+        clerkLocation = null;
+        zoomToMyLocation = true;
+        notificationMSG = "Your package has been delivered, We hope to see you again soon";
+        if(getActivity()==null)
+            return;
+
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                notificationTextview.setText(notificationMSG);
+                Toast.makeText(getActivity(), "Your package has been delivered!", Toast.LENGTH_LONG).show();
+                mMap.addMarker(new MarkerOptions().position(myLocation).title("Me")).showInfoWindow();
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 15));
+                mMap.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
+            }
+        });
+    }
+
+    private void changeNotificationRemainningTime(String notificationMSG) {
+        final String notif = notificationMSG;
+        if(getActivity()==null)
+            return;
+        getActivity().runOnUiThread(new Runnable() {
+        @Override
+        public void run () {
+            notificationTextview.setText(notif);
+        }
+    });
     }
 
     public interface OnFragmentInteractionListener {
