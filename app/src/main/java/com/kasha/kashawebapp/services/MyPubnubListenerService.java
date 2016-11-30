@@ -181,7 +181,7 @@ public class MyPubnubListenerService extends IntentService {
                     inboxStyle.addLine("One of our delivery clerk picked your order,");
                     inboxStyle.addLine("please expect your delivery soon.");
                     inboxStyle.addLine("Thank you for shopping with us.");
-                    
+
                     // Save notification
                     String msg = "Your order is well received. \n" +
                             "One of our delivery clerk will pick your order," +
