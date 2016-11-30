@@ -270,7 +270,6 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
         /// End of pubnub////
         //////////////////////
 
-        //return the view
         return rootView;
     }
 
