@@ -227,6 +227,8 @@ public class MyPubnubListenerService extends IntentService {
                 // Start of MainActivity on click
                 Intent resultIntent = new Intent(MyPubnubListenerService.this,
                         MainActivity.class);
+                resultIntent.putExtra("viewpager_position", 2); // open the history fragment
+
                 resultIntent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
 
                 PendingIntent resultPendingIntent =
@@ -237,6 +239,8 @@ public class MyPubnubListenerService extends IntentService {
                 NotificationManager mNotificationManager =
                         (NotificationManager) getBaseContext().getSystemService(
                                 Context.NOTIFICATION_SERVICE);
+
+                //MainActivity.mViewPager.setCurrentItem(1);
 
 /*                mBuilder.setSound(Settings.System.DEFAULT_NOTIFICATION_URI);
                 mBuilder.setLights(Color.RED, 3000, 3000);
