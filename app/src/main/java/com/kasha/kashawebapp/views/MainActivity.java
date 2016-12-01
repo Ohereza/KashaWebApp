@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
     public static ViewPager mViewPager;
+    private int viewPagerPosition;
 
 
     @Override
@@ -57,6 +58,13 @@ public class MainActivity extends AppCompatActivity {
         CustomViewPagerAdapter mCustomViewPagerAdapter = new CustomViewPagerAdapter(
                 getSupportFragmentManager(), getApplicationContext());
 
+        Bundle extras = getIntent().getExtras();
+        if(extras != null) {
+            viewPagerPosition = extras.getInt("viewpager_position");
+        } else{
+            viewPagerPosition = 0;
+        }
+
     // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mCustomViewPagerAdapter);
@@ -65,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         //set welcome tab to webview tab
-        mViewPager.setCurrentItem(0);
+        mViewPager.setCurrentItem(viewPagerPosition);
 
         TabLayout mTabLayout = (TabLayout) findViewById(R.id.tab_layout);
         mTabLayout.setupWithViewPager(mViewPager);
