@@ -65,7 +65,7 @@ public class HistoryFragment extends Fragment {
                 MessageListAdapter adapter;
                 listMessages = new ArrayList<Msg>();
 
-                // Msg(String cle, String email, String message, String attach, boolean fromMe, String teleAttach, String hour, String date)
+
                 LinkedHashMap<String,String> notifications = Util.getMapFromCursor(
                                                 mydb.getAllNotificationsToAnOrder(selectedOrder));
 

@@ -32,10 +32,12 @@ public class KashaWebAppDBHelper extends SQLiteOpenHelper {
 
     private static final String SQL_CREATE_NOTIFICATIONS =
             "CREATE TABLE " + KashaWebAppDBContract.Notifications.TABLE_NAME + " (" +
+                    KashaWebAppDBContract.Notifications.COLUMN_NAME_ID + INT_TYPE + "AUTOINCREMENT,"+
                     KashaWebAppDBContract.Notifications.COLUMN_NAME_ORDER_ID + TEXT_TYPE + "," +
                     KashaWebAppDBContract.Notifications.COLUMN_NAME_MESSAGE + TEXT_TYPE + "," +
                     KashaWebAppDBContract.Notifications.COLUMN_NAME_TIMESTAMP + DATE_TYPE + "," +
-                    " PRIMARY KEY ("+KashaWebAppDBContract.Notifications.COLUMN_NAME_ORDER_ID + ","
+                    " PRIMARY KEY ("+KashaWebAppDBContract.Deliveries.COLUMN_NAME_ID + ","
+                    +KashaWebAppDBContract.Notifications.COLUMN_NAME_ORDER_ID + ","
                     +KashaWebAppDBContract.Notifications.COLUMN_NAME_MESSAGE+"))";
 
     private static final String SQL_DELETE_DELIVERIES =
@@ -129,7 +131,8 @@ public class KashaWebAppDBHelper extends SQLiteOpenHelper {
         Cursor res;
         res =  db.rawQuery( "select * from " + KashaWebAppDBContract.Notifications.TABLE_NAME +
                 " where "+KashaWebAppDBContract.Notifications.COLUMN_NAME_ORDER_ID
-                +"='"+ order_id + "'", null );
+                +"='"+ order_id + "'"+" order by "+
+                KashaWebAppDBContract.Notifications.COLUMN_NAME_ID +" desc", null );
         return res;
     }
 

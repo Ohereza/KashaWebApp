@@ -194,7 +194,8 @@ public class MyPubnubListenerService extends IntentService {
                             " progress can be visualized from the map.\n" +
                             "Thank you for shopping with us.");
                     inboxStyle.addLine("Your delivery is under way,");
-                    inboxStyle.addLine("Progress can be visualized from the map.");
+                    inboxStyle.addLine("Progress can be visualized");
+                    inboxStyle.addLine("from the map.");
                     inboxStyle.addLine("Thank you for shopping with us.");
 
                     // Save notification
@@ -216,6 +217,12 @@ public class MyPubnubListenerService extends IntentService {
                     mydb.insertNotification(orderKey,msg,Util.getCurrentTimestamp());
                     mydb.setDeliveryStatus(orderKey,2);
 
+                    // stop tracking if delivery is completed
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("DeliveryStatus","OFF");
+                    //editor.remove("orderKey");
+                    editor.apply();
+
                 }
 
 
@@ -227,6 +234,13 @@ public class MyPubnubListenerService extends IntentService {
                 // Start of MainActivity on click
                 Intent resultIntent = new Intent(MyPubnubListenerService.this,
                         MainActivity.class);
+
+                // Open a different tab based on the notification\
+                if (notificationType == 2) {
+                    resultIntent.putExtra("viewpager_position", 1); // open the map fragment
+                }else{
+                    resultIntent.putExtra("viewpager_position", 2); // open the history fragment
+                }
                 resultIntent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
 
                 PendingIntent resultPendingIntent =
@@ -238,6 +252,8 @@ public class MyPubnubListenerService extends IntentService {
                         (NotificationManager) getBaseContext().getSystemService(
                                 Context.NOTIFICATION_SERVICE);
 
+                //MainActivity.mViewPager.setCurrentItem(1);
+
 /*                mBuilder.setSound(Settings.System.DEFAULT_NOTIFICATION_URI);
                 mBuilder.setLights(Color.RED, 3000, 3000);
                 mBuilder.setVibrate(new long[]{1000, 1000});*/
@@ -247,13 +263,6 @@ public class MyPubnubListenerService extends IntentService {
                 Vibrator vibrator = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
                 vibrator.vibrate(500);
 
-                // stop tracking if delivery is completed
-                if (notificationType == 2){
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putString("DeliveryStatus","OFF");
-                    //editor.remove("orderKey");
-                    editor.apply();
-                }
             }
         });
     }
