@@ -132,6 +132,12 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
         myLocationImg = (ImageView) rootView.findViewById(R.id.imgMyLocation);
         clerkLocationImg = (ImageView) rootView.findViewById(R.id.imgClerkLocation);
 
+        if(savedInstanceState!=null){
+            double[] locs = savedInstanceState.getDoubleArray("clerkLocation");
+            clerkLocation = new LatLng(locs[0], locs[1]);
+
+        }
+
         myLocationImg.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -258,7 +264,7 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
                     }
                 }
                 catch (JSONException e) {
-                    Log.e("client app", e.toString());
+                    Log.e("Error loc but error: ", e.toString());
                 }
             }
 
@@ -433,6 +439,13 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
             return;
         }
         mLocationManager.removeUpdates(this);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        double[] locs = {clerkLocation.latitude,clerkLocation.longitude};
+        savedInstanceState.putDoubleArray("clerkLocation", locs);
     }
 
     private void updatePolyline() {
