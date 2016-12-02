@@ -45,6 +45,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import static com.kasha.kashawebapp.helper.Configs.PREFS_NAME;
 import static com.kasha.kashawebapp.helper.Configs.bckend_password;
 import static com.kasha.kashawebapp.helper.Configs.bckend_username;
+import static com.kasha.kashawebapp.helper.Configs.closeCursor;
 
 /**
  * Created by rkabagamba on 10/13/2016.
@@ -102,7 +103,7 @@ public class LocatorService extends Service
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        activeOrders = Util.getStringArrayFromColumnCursor(mydb.getAllActiveOrders());
+        activeOrders = Util.getStringArrayFromColumnCursor(mydb.getAllActiveOrders(),closeCursor);
         sharedPreferences = getSharedPreferences(PREFS_NAME, 0);
         orderKey = sharedPreferences.getString("orderKey","NONE");
         //orderKey = intent.getStringExtra("orderKey");

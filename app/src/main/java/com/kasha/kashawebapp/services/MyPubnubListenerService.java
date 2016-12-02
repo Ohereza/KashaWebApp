@@ -31,6 +31,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import static com.kasha.kashawebapp.helper.Configs.PREFS_NAME;
+import static com.kasha.kashawebapp.helper.Configs.closeCursor;
 
 /**
  * Created by rkabagamba on 11/2/2016.
@@ -70,7 +71,7 @@ public class MyPubnubListenerService extends IntentService {
 
         // Get username
         //orderKey = sharedPreferences.getString("orderKey",null);
-        activeOrders = Util.getStringArrayFromColumnCursor(mydb.getAllActiveOrders());
+        activeOrders = Util.getStringArrayFromColumnCursor(mydb.getAllActiveOrders(),closeCursor);
         // Subscribe to a channel - the same as the order id
         //pubnub.subscribe().channels(Arrays.asList(orderKey)).execute();
         pubnub.subscribe().channels(activeOrders).execute();

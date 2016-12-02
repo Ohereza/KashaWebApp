@@ -24,7 +24,7 @@ public class Util {
         return timestamp;
     }
 
-    public static ArrayList<String> getStringArrayFromColumnCursor(Cursor rs){
+    public static ArrayList<String> getStringArrayFromColumnCursor(Cursor rs, boolean closeCursor){
         ArrayList<String> array = new ArrayList<String>();
 
         rs.moveToFirst();
@@ -32,6 +32,57 @@ public class Util {
         if (rs.getCount() > 0){
             do {
                 array.add(rs.getString(0));
+            } while ( rs.moveToNext() );
+        }
+
+        if(rs!=null && closeCursor){
+            rs.close();
+        }
+        return array;
+    }
+
+    public static ArrayList<String> getOrderIdDeliveriesCursor(Cursor rs, boolean closeCursor){
+        ArrayList<String> array = new ArrayList<String>();
+
+        rs.moveToFirst();
+
+        if (rs.getCount() > 0){
+            do {
+                array.add(rs.getString(1));
+            } while ( rs.moveToNext() );
+        }
+
+        if(rs!=null && closeCursor){
+            rs.close();
+        }
+        return array;
+    }
+
+    public static ArrayList<String> getStringArrayFromCursor(Cursor rs, int columnId){
+        ArrayList<String> array = new ArrayList<String>();
+
+        rs.moveToFirst();
+
+        if (rs.getCount() > 0){
+            do {
+                array.add(rs.getString(columnId));
+            } while ( rs.moveToNext() );
+        }
+
+        if(rs!=null){
+            rs.close();
+        }
+        return array;
+    }
+
+    public static ArrayList<Integer> getIntArrayFromCursor(Cursor rs, int columnId){
+        ArrayList<Integer> array = new ArrayList<Integer>();
+
+        rs.moveToFirst();
+
+        if (rs.getCount() > 0){
+            do {
+                array.add(rs.getInt(columnId));
             } while ( rs.moveToNext() );
         }
 

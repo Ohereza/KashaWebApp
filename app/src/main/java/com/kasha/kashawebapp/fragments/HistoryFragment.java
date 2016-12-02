@@ -73,13 +73,12 @@ public class HistoryFragment extends Fragment {
 
                     listMessages.add(new Msg("", "", notifications.get(timestamp), "", false, "", "", timestamp ));
                 }
-/*                for (int i=0; i<notifications.size();i++) {
-                    listMessages.add(new Msg("", "", notifications.get(i), "", false, "", "", "timestamp" ));
-                }*/
+
                 adapter = new MessageListAdapter(getContext(), listMessages);
                 listMsg.setAdapter(adapter);
 
-                Toast.makeText(getActivity(),"You have picked "+selectedOrder,Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(),"Notifications for order "
+                                      +selectedOrder,Toast.LENGTH_LONG).show();
             }
         });
 

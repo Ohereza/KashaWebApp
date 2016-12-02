@@ -58,6 +58,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import static com.kasha.kashawebapp.helper.Configs.PREFS_NAME;
+import static com.kasha.kashawebapp.helper.Configs.closeCursor;
 import static java.lang.Math.round;
 
 public class LocationFragment extends Fragment implements OnMapReadyCallback,
@@ -178,7 +179,7 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
         SupportMapFragment mapFrag = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mapFrag.getMapAsync(this);
 
-        activeOrders = Util.getStringArrayFromColumnCursor(mydb.getAllActiveOrders());
+        activeOrders = Util.getStringArrayFromColumnCursor(mydb.getAllActiveOrders(),closeCursor);
 
         //  PUBNUB
         PNConfiguration pnConfiguration = new PNConfiguration();

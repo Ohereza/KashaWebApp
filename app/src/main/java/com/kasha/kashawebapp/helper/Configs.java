@@ -20,5 +20,8 @@ public class Configs {
     public static String bckend_username = "Administrator";
     public static String bckend_password = "pds";
 
+    // related to the DB
+    public static boolean closeCursor = true;
+
 
 }
