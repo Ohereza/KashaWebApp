@@ -1,5 +1,6 @@
 package com.kasha.kashawebapp.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -12,13 +13,8 @@ import android.widget.Toast;
 
 import com.kasha.kashawebapp.DB.KashaWebAppDBHelper;
 import com.kasha.kashawebapp.R;
-import com.kasha.kashawebapp.adapter.MessageListAdapter;
 import com.kasha.kashawebapp.adapter.MyOrdersListViewAdapter;
-import com.kasha.kashawebapp.helper.Msg;
-import com.kasha.kashawebapp.helper.Util;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import com.kasha.kashawebapp.views.NotificationDisplayActivity;
 
 /**
  * Created by rkabagamba on 11/28/2016.
@@ -58,27 +54,13 @@ public class HistoryFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String selectedOrder = String.valueOf(parent.getItemAtPosition(position));
 
-                // Start the chatview
-                ListView listMsg;
-                listMsg = (ListView) getActivity().findViewById(R.id.main_list_view);
-                ArrayList<Msg> listMessages;
-                MessageListAdapter adapter;
-                listMessages = new ArrayList<Msg>();
+                Toast.makeText(getActivity(),"Notifications for " +selectedOrder,
+                                                    Toast.LENGTH_LONG).show();
 
+                Intent mIntent = new Intent(getActivity(), NotificationDisplayActivity.class);
+                mIntent.putExtra("order",selectedOrder);
+                getActivity().startActivity(mIntent);
 
-                LinkedHashMap<String,String> notifications = Util.getMapFromCursor(
-                                                mydb.getAllNotificationsToAnOrder(selectedOrder));
-
-                for(String timestamp:notifications.keySet()){
-
-                    listMessages.add(new Msg("", "", notifications.get(timestamp), "", false, "", "", timestamp ));
-                }
-
-                adapter = new MessageListAdapter(getContext(), listMessages);
-                listMsg.setAdapter(adapter);
-
-                Toast.makeText(getActivity(),"Notifications for order "
-                                      +selectedOrder,Toast.LENGTH_LONG).show();
             }
         });
 

@@ -46,6 +46,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".views.NotificationDisplayActivity"
+            android:label="Notifications"></activity>
     </application>
 
 </manifest>

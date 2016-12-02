@@ -1,9 +1,11 @@
 package com.kasha.kashawebapp.views;
 
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -12,6 +14,7 @@ import android.support.multidex.MultiDex;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -25,6 +28,7 @@ import android.widget.TextView;
 import com.kasha.kashawebapp.R;
 import com.kasha.kashawebapp.adapter.CustomViewPagerAdapter;
 import com.kasha.kashawebapp.fragments.LocationFragment;
+import com.kasha.kashawebapp.services.MyPubnubListenerService;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
@@ -33,7 +37,9 @@ public class MainActivity extends AppCompatActivity {
     private SectionsPagerAdapter mSectionsPagerAdapter;
     public static ViewPager mViewPager;
     private int viewPagerPosition;
+    private CustomViewPagerAdapter mCustomViewPagerAdapter;
 
+    private BroadcastReceiver receiver;
 
     @Override
     protected void attachBaseContext(Context context) {
@@ -55,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Create the adapter that will return a fragment for each of the three
     // primary sections of the activity.
-        CustomViewPagerAdapter mCustomViewPagerAdapter = new CustomViewPagerAdapter(
+        mCustomViewPagerAdapter = new CustomViewPagerAdapter(
                 getSupportFragmentManager(), getApplicationContext());
 
         Bundle extras = getIntent().getExtras();
@@ -78,6 +84,25 @@ public class MainActivity extends AppCompatActivity {
         TabLayout mTabLayout = (TabLayout) findViewById(R.id.tab_layout);
         mTabLayout.setupWithViewPager(mViewPager);
 
+        receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String pubnub_msg = intent.getStringExtra(MyPubnubListenerService.PUBNUB_LISTENER_MESSAGE);
+                if (pubnub_msg.equalsIgnoreCase("onDelivering") && mCustomViewPagerAdapter != null){
+                    // refresh fragments
+                    mCustomViewPagerAdapter.notifyDataSetChanged();
+                    mViewPager.setCurrentItem(1);
+                }
+            }
+        };
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        LocalBroadcastManager.getInstance(this).registerReceiver((receiver),
+                new IntentFilter(MyPubnubListenerService.PUBNUB_NOTIFIER)
+        );
     }
 
     @Override
@@ -123,6 +148,12 @@ public class MainActivity extends AppCompatActivity {
             alertDialog.setCanceledOnTouchOutside(false);
             alertDialog.show();
         }
+    }
+
+    @Override
+    protected void onStop() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver);
+        super.onStop();
     }
 
     /**

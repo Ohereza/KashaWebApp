@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -40,6 +41,9 @@ import static com.kasha.kashawebapp.helper.Configs.closeCursor;
 
 public class MyPubnubListenerService extends IntentService {
 
+    static final public String PUBNUB_NOTIFIER = "com.kasha.kashawebapp.services.MyPubnubListenerService.PUBNUB_NOTIFICATION_INTENT";
+    static final public String PUBNUB_LISTENER_MESSAGE = "com.kasha.kashawebapp.services.MyPubnubListenerService.";
+
     private SharedPreferences sharedPreferences;
     private static final String TAG_PUBNUBLISTENER = "MyPubnubListenerService";
     private PNConfiguration pnConfiguration;
@@ -52,6 +56,7 @@ public class MyPubnubListenerService extends IntentService {
     private ArrayList<String> activeOrders;
 
     private PolylineOptions mPolylineOptions;
+    private LocalBroadcastManager broadcaster;
 
     public MyPubnubListenerService() {
         super("MyPubnubListenerService");
@@ -61,6 +66,8 @@ public class MyPubnubListenerService extends IntentService {
     public void onCreate() {
         //Toast.makeText(this, "Pubnub listener service started", Toast.LENGTH_SHORT).show();
         super.onCreate();
+
+        broadcaster = LocalBroadcastManager.getInstance(this);
 
         mydb = KashaWebAppDBHelper.getInstance(getApplicationContext());
         sharedPreferences = getSharedPreferences(PREFS_NAME, 0);
@@ -78,6 +85,15 @@ public class MyPubnubListenerService extends IntentService {
         //pubnub.subscribe().channels(Arrays.asList("testChannel")).execute();
 
         Log.v(TAG_PUBNUBLISTENER, "order id: "+orderKey);
+    }
+
+
+
+    public void sendResult(String message) {
+        Intent intent = new Intent(PUBNUB_NOTIFIER);
+        if(message != null)
+            intent.putExtra(PUBNUB_LISTENER_MESSAGE, message);
+        broadcaster.sendBroadcast(intent);
     }
 
 
@@ -175,17 +191,17 @@ public class MyPubnubListenerService extends IntentService {
 
                 if (notificationType == 1){
                     mBuilder.setContentText("Your order is well received. \n" +
-                            "One of our delivery clerk picked your order," +
+                            "A delivery clerk will pick your order," +
                             " please expect your delivery soon.\n" +
                             "Thank you for shopping with us.");
                     inboxStyle.addLine("Your order is well received.");
-                    inboxStyle.addLine("One of our delivery clerk picked your order,");
+                    inboxStyle.addLine("A delivery clerk will pick your order,");
                     inboxStyle.addLine("please expect your delivery soon.");
                     inboxStyle.addLine("Thank you for shopping with us.");
 
                     // Save notification
                     String msg = "Your order is well received. \n" +
-                            "One of our delivery clerk will pick your order," +
+                            "A delivery clerk will pick your order," +
                             " please expect your delivery soon.\n" +
                             "Thank you for shopping with us.";
                     mydb.insertNotification(orderKey,msg,Util.getCurrentTimestamp());
@@ -204,6 +220,7 @@ public class MyPubnubListenerService extends IntentService {
                             " progress can be visualized from the map.\n" +
                             "Thank you for shopping with us.";
                     mydb.insertNotification(orderKey,msg,Util.getCurrentTimestamp());
+                    sendResult("onDelivering");
 
                 }
                 else if (notificationType == 3){
