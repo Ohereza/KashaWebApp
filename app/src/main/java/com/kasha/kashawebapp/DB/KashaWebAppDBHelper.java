@@ -136,4 +136,17 @@ public class KashaWebAppDBHelper extends SQLiteOpenHelper {
         return res;
     }
 
+    public boolean onGoingOrders(){
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor res;
+        res =  db.rawQuery( "select * from " + KashaWebAppDBContract.Deliveries.TABLE_NAME +
+                " where "+KashaWebAppDBContract.Deliveries.COLUMN_NAME_STATUS
+                +"="+ KashaWebAppDBContract.Deliveries.ACTIVE_STATUS, null );
+
+        if (res.getCount() == 0){
+            return false;
+        } else{
+            return true;
+        }
+    }
 }

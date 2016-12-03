@@ -222,9 +222,7 @@ public class MyPubnubListenerService extends IntentService {
                     editor.putString("DeliveryStatus","OFF");
                     //editor.remove("orderKey");
                     editor.apply();
-
                 }
-
 
                 Log.d("App","pubnub notificaiton, order key: "+ orderKey);
 
