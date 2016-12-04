@@ -51,8 +51,7 @@ import static com.kasha.kashawebapp.helper.Configs.closeCursor;
  * Created by rkabagamba on 10/13/2016.
  */
 
-public class LocatorService extends Service
-            implements  GoogleApiClient.ConnectionCallbacks,
+public class LocatorService extends Service implements  GoogleApiClient.ConnectionCallbacks,
                         GoogleApiClient.OnConnectionFailedListener,
                         LocationListener {
 
@@ -78,7 +77,7 @@ public class LocatorService extends Service
         super.onCreate();
         mydb = KashaWebAppDBHelper.getInstance(getApplicationContext());
 
-        Toast.makeText(this, "on create LocatorService", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "order sent", Toast.LENGTH_SHORT).show();
 
         // Create an instance of GoogleAPIClient.
         if (mGoogleApiClient == null) {
@@ -103,7 +102,6 @@ public class LocatorService extends Service
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        activeOrders = Util.getStringArrayFromColumnCursor(mydb.getAllActiveOrders(),closeCursor);
         sharedPreferences = getSharedPreferences(PREFS_NAME, 0);
         orderKey = sharedPreferences.getString("orderKey","NONE");
         //orderKey = intent.getStringExtra("orderKey");
@@ -161,10 +159,10 @@ public class LocatorService extends Service
     public void onLocationChanged(Location location) {
         if(sharedPreferences.getString("DeliveryStatus","OFF").equalsIgnoreCase("ON")){
             //Toast.makeText(this, "OnLocation changed", Toast.LENGTH_SHORT).show();
+            activeOrders = Util.getStringArrayFromColumnCursor(mydb.getAllActiveOrders(),closeCursor);
             LocationWebService locationWebService = new LocationWebService();
             locationWebService.execute(location);
         } else {
-            //Toast.makeText(this, "Stopping the locator service", Toast.LENGTH_SHORT).show();
             stopSelf();
         }
     }
@@ -201,6 +199,12 @@ public class LocatorService extends Service
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        Toast.makeText(this, "on destroy LocatorService", Toast.LENGTH_LONG).show();
     }
 
 

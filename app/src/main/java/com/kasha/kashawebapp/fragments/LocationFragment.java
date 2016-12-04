@@ -137,8 +137,8 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
 
             @Override
             public void onClick(View v) {
-                if(myLocation!=null && mMap!=null) {
-                    Toast.makeText(getActivity(),"Zooming to my location",Toast.LENGTH_SHORT).show();
+                if (myLocation != null && mMap != null) {
+                    Toast.makeText(getActivity(), "Zooming to my location", Toast.LENGTH_SHORT).show();
                     CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(myLocation, 15);
                     mMap.animateCamera(cameraUpdate);
                 }
@@ -148,13 +148,12 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
         clerkLocationImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(clerkLocation!=null && mMap!=null) {
-                    Toast.makeText(getActivity(),"Zooming to my package",Toast.LENGTH_SHORT).show();
+                if (clerkLocation != null && mMap != null) {
+                    Toast.makeText(getActivity(), "Zooming to my package", Toast.LENGTH_SHORT).show();
                     CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(clerkLocation, 15);
                     mMap.animateCamera(cameraUpdate);
-                }
-                else{
-                    Toast.makeText(getActivity(),"No active delivery",Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getActivity(), "No active delivery", Toast.LENGTH_SHORT).show();
                 }
 
             }
@@ -179,7 +178,7 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
         SupportMapFragment mapFrag = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mapFrag.getMapAsync(this);
 
-        activeOrders = Util.getStringArrayFromColumnCursor(mydb.getAllActiveOrders(),closeCursor);
+        activeOrders = Util.getStringArrayFromColumnCursor(mydb.getAllActiveOrders(), closeCursor);
 
         //  PUBNUB
         PNConfiguration pnConfiguration = new PNConfiguration();
@@ -222,7 +221,7 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
                 try {
                     jsonRequest = new JSONObject(String.valueOf(message.getMessage()));
 
-                    if(message.getMessage().toString().toLowerCase().contains("latlng")){
+                    if (message.getMessage().toString().toLowerCase().contains("latlng")) {
 
                         zoomToMyLocation = false;
                         String latLon = message.getMessage().toString().split("(\\{)|(:)|(\\[)|(\\])")[5];
@@ -233,19 +232,16 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
                         mPolylineOptions = new PolylineOptions();
                         mPolylineOptions.color(Color.BLUE).width(10);
                         LocationFragment.this.updatePolyline();
-                    }
-                    else if (jsonRequest != null && jsonRequest.has("type")
+                    } else if (jsonRequest != null && jsonRequest.has("type")
                             && jsonRequest.getString("type").equalsIgnoreCase("Delivering")) {
 
                         zoomToMyLocation = false;
                         LocationFragment.this.changeStatusToDelivering();
-                    }
-                    else if (jsonRequest != null && jsonRequest.has("type")
+                    } else if (jsonRequest != null && jsonRequest.has("type")
                             && jsonRequest.getString("type").equalsIgnoreCase("Delivered")) {
                         LocationFragment.this.changeStatusToDelivered();
 
-                    }
-                    else if (jsonRequest != null && jsonRequest.has("type")
+                    } else if (jsonRequest != null && jsonRequest.has("type")
                             && jsonRequest.getString("type").equalsIgnoreCase("Update")) {
 
 
@@ -253,12 +249,11 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
                         JSONObject timeAndDistance = new JSONObject(String.valueOf(updates));
                         //String remDistance = timeAndDistance.getString("remaining_distance");
                         int remTime = timeAndDistance.getInt("remaining_time");
-                        notificationMSG = "Your package reaches you in "+(round(remTime/60))+"Min.";
+                        notificationMSG = "Your package reaches you in " + (round(remTime / 60)) + "Min.";
                         LocationFragment.this.changeNotificationRemainningTime(notificationMSG);
 
                     }
-                }
-                catch (JSONException e) {
+                } catch (JSONException e) {
                     Log.e("client app", e.toString());
                 }
             }
@@ -285,9 +280,10 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
         notificationMSG = " Synchronizing ..... ";
         notificationTextview.setText(notificationMSG);
 
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(getContext(), "Please enable the GPS", Toast.LENGTH_LONG);
+        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            notificationMSG = " Please enable the GPS and allow the permission for the app to access your location ";
+            notificationTextview.setText(notificationMSG);
             return;
         }
         Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
@@ -442,29 +438,34 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mMap.clear();
-                mMap.addPolyline(mPolylineOptions.add(clerkLocation));
-                mMap.addMarker(new MarkerOptions().position(myLocation)
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
-                        .title("Me")).showInfoWindow();
+                try {
+                    mMap.clear();
+                    mMap.addPolyline(mPolylineOptions.add(clerkLocation));
+                    mMap.addMarker(new MarkerOptions().position(myLocation)
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+                            .title("Me")).showInfoWindow();
 
-                mMap.addMarker(new MarkerOptions().position(clerkLocation)
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
-                        .title("My Package")).showInfoWindow();
+                    mMap.addMarker(new MarkerOptions().position(clerkLocation)
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+                            .title("My Package")).showInfoWindow();
 
-                mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
-                    @Override
-                    public void onMapLoaded() {
-                        LatLngBounds.Builder builder = new LatLngBounds.Builder();
-                        builder.include(clerkLocation);
-                        builder.include(myLocation);
-                        LatLngBounds bounds = builder.build();
-                        int padding = 65;
-                        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
-                        mMap.moveCamera(cu);
-                        mMap.animateCamera(cu);
-                    }
-                });
+                    mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+                        @Override
+                        public void onMapLoaded() {
+                            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                            builder.include(clerkLocation);
+                            builder.include(myLocation);
+                            LatLngBounds bounds = builder.build();
+                            int padding = 65;
+                            CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+                            mMap.moveCamera(cu);
+                            mMap.animateCamera(cu);
+                        }
+                    });
+                }
+                catch (Exception e){
+
+                }
             }
 
         });
@@ -497,11 +498,16 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                notificationTextview.setText(notificationMSG);
-                Toast.makeText(getActivity(), "Your package has been delivered!", Toast.LENGTH_LONG).show();
-                mMap.addMarker(new MarkerOptions().position(myLocation).title("Me")).showInfoWindow();
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 15));
-                mMap.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
+                try {
+                    notificationTextview.setText(notificationMSG);
+                    Toast.makeText(getActivity(), "Your package has been delivered!", Toast.LENGTH_LONG).show();
+                    mMap.addMarker(new MarkerOptions().position(myLocation).title("Me")).showInfoWindow();
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 15));
+                    mMap.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
+                }
+                catch (Exception e){
+
+                }
             }
         });
     }
@@ -513,7 +519,12 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
         getActivity().runOnUiThread(new Runnable() {
         @Override
         public void run () {
-            notificationTextview.setText(notif);
+            try {
+                notificationTextview.setText(notif);
+            }
+            catch (Exception e){
+
+            }
         }
     });
     }

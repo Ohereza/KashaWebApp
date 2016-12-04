@@ -222,8 +222,7 @@ public class MyPubnubListenerService extends IntentService {
                     mydb.insertNotification(orderKey,msg,Util.getCurrentTimestamp());
                     sendResult("onDelivering");
 
-                }
-                else if (notificationType == 3){
+                } else if (notificationType == 3){
                     mBuilder.setContentText("Your delivery is completed.\n" +
                             "Thank you for shopping with us");
                     inboxStyle.addLine("Your delivery is completed.");
@@ -235,11 +234,13 @@ public class MyPubnubListenerService extends IntentService {
                     mydb.insertNotification(orderKey,msg,Util.getCurrentTimestamp());
                     mydb.setDeliveryStatus(orderKey,2);
 
-                    // stop tracking if delivery is completed
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putString("DeliveryStatus","OFF");
-                    //editor.remove("orderKey");
-                    editor.apply();
+                    if (! mydb.onGoingOrders()) {
+                        // stop tracking if delivery is completed
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putString("DeliveryStatus", "OFF");
+                        //editor.remove("orderKey");
+                        editor.apply();
+                    }
                 }
 
                 Log.d("App","pubnub notificaiton, order key: "+ orderKey);
