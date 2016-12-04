@@ -29,6 +29,7 @@ import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import static com.kasha.kashawebapp.helper.Configs.PREFS_NAME;
@@ -43,6 +44,7 @@ public class MyPubnubListenerService extends IntentService {
 
     static final public String PUBNUB_NOTIFIER = "com.kasha.kashawebapp.services.MyPubnubListenerService.PUBNUB_NOTIFICATION_INTENT";
     static final public String PUBNUB_LISTENER_MESSAGE = "com.kasha.kashawebapp.services.MyPubnubListenerService.";
+    static final public String PUBNUB_LISTENER_CLERK_UPDATE = "com.kasha.kashawebapp.services.PubnubClerkNotification";
 
     private SharedPreferences sharedPreferences;
     private static final String TAG_PUBNUBLISTENER = "MyPubnubListenerService";
@@ -93,6 +95,14 @@ public class MyPubnubListenerService extends IntentService {
         Intent intent = new Intent(PUBNUB_NOTIFIER);
         if(message != null)
             intent.putExtra(PUBNUB_LISTENER_MESSAGE, message);
+        broadcaster.sendBroadcast(intent);
+    }
+
+    public void sendClerkUpdates(String message, JSONObject clerkUpdates) {
+        Intent intent = new Intent(PUBNUB_NOTIFIER);
+        if(clerkUpdates != null)
+            intent.putExtra(PUBNUB_LISTENER_MESSAGE, message);
+            intent.putExtra(PUBNUB_LISTENER_CLERK_UPDATE, (Serializable) clerkUpdates);
         broadcaster.sendBroadcast(intent);
     }
 

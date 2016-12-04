@@ -30,6 +30,8 @@ import com.kasha.kashawebapp.adapter.CustomViewPagerAdapter;
 import com.kasha.kashawebapp.fragments.LocationFragment;
 import com.kasha.kashawebapp.services.MyPubnubListenerService;
 
+import org.json.JSONObject;
+
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class MainActivity extends AppCompatActivity {
@@ -53,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        LocationFragment locaFrag = new LocationFragment();
+        final LocationFragment locaFrag = new LocationFragment();
         getSupportFragmentManager()
                 .beginTransaction()
                 .add(locaFrag, "locaFrag")
@@ -79,7 +81,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         //set welcome tab to webview tab
-        mViewPager.setCurrentItem(viewPagerPosition);
+        //mViewPager.setCurrentItem(viewPagerPosition);
+        mViewPager.setCurrentItem(1);
 
         TabLayout mTabLayout = (TabLayout) findViewById(R.id.tab_layout);
         mTabLayout.setupWithViewPager(mViewPager);
@@ -92,9 +95,16 @@ public class MainActivity extends AppCompatActivity {
                     // refresh fragments
                     mCustomViewPagerAdapter.notifyDataSetChanged();
                     mViewPager.setCurrentItem(1);
+
+                } else if (pubnub_msg.equalsIgnoreCase("onClerkUpdates") && locaFrag != null){
+                    JSONObject clerkLocation = (JSONObject)
+                            intent.getSerializableExtra(MyPubnubListenerService.PUBNUB_LISTENER_CLERK_UPDATE);
+                    locaFrag.updateClerkLocation(clerkLocation);
+
                 }
             }
         };
+
     }
 
     @Override
