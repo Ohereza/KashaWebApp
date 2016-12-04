@@ -275,6 +275,7 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
 
         return rootView;
     }
+
     public void updateClerkLocation(JSONObject clerkLocation){
         Log.d("log","update clerk location");
 
@@ -288,11 +289,11 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
 
     }
 
-/*    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }*/
+///*    public void onButtonPressed(Uri uri) {
+//        if (mListener != null) {
+//            mListener.onFragmentInteraction(uri);
+//        }
+//    }*/
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
