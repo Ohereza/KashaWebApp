@@ -44,6 +44,7 @@ public class MyPubnubListenerService extends IntentService {
 
     static final public String PUBNUB_NOTIFIER = "com.kasha.kashawebapp.services.MyPubnubListenerService.PUBNUB_NOTIFICATION_INTENT";
     static final public String PUBNUB_LISTENER_MESSAGE = "com.kasha.kashawebapp.services.MyPubnubListenerService.";
+    static final public String PUBNUB_LISTENER_CLERK_UPDATE = "com.kasha.kashawebapp.services.PubnubClerkNotification";
 
     private SharedPreferences sharedPreferences;
     private static final String TAG_PUBNUBLISTENER = "MyPubnubListenerService";
@@ -97,10 +98,11 @@ public class MyPubnubListenerService extends IntentService {
         broadcaster.sendBroadcast(intent);
     }
 
-    public void sendClerkUpdates(JSONObject clerkUpdates) {
+    public void sendClerkUpdates(String message, JSONObject clerkUpdates) {
         Intent intent = new Intent(PUBNUB_NOTIFIER);
         if(clerkUpdates != null)
-            intent.putExtra(PUBNUB_LISTENER_MESSAGE, (Serializable) clerkUpdates);
+            intent.putExtra(PUBNUB_LISTENER_MESSAGE, message);
+            intent.putExtra(PUBNUB_LISTENER_CLERK_UPDATE, (Serializable) clerkUpdates);
         broadcaster.sendBroadcast(intent);
     }
 
