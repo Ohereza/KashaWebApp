@@ -93,6 +93,8 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
     private ImageView myLocationImg;
     private ImageView clerkLocationImg;
 
+    private KashaWebAppDBHelper kashaWebAppDBHelper;
+
     public LocationFragment() {
         // Required empty public constructor
     }
@@ -125,6 +127,7 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.fragment_location, container, false);
 
+        kashaWebAppDBHelper = new KashaWebAppDBHelper(getContext());
         mydb = KashaWebAppDBHelper.getInstance(getContext());
         notificationTextview = (TextView) rootView.findViewById(R.id.notification_textview);
         notificationTextview.setSelected(true);
@@ -153,7 +156,12 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
                     CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(clerkLocation, 15);
                     mMap.animateCamera(cameraUpdate);
                 } else {
-                    Toast.makeText(getActivity(), "No active delivery", Toast.LENGTH_SHORT).show();
+                    if(kashaWebAppDBHelper.onGoingOrders()) {
+                        Toast.makeText(getActivity(), "Contacting the server .... ", Toast.LENGTH_SHORT).show();
+                    }
+                    else{
+                        Toast.makeText(getActivity(), "No active delivery", Toast.LENGTH_SHORT).show();
+                    }
                 }
 
             }
@@ -269,11 +277,11 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
         return rootView;
     }
 
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
+//    public void onButtonPressed(Uri uri) {
+//        if (mListener != null) {
+//            mListener.onFragmentInteraction(uri);
+//        }
+//    }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
@@ -319,7 +327,12 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
                 mMap.addMarker(new MarkerOptions().position(myLocation).title("Me")).showInfoWindow();
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation,15));
                 mMap.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
-                notificationMSG = " No active delivery ";
+                if(kashaWebAppDBHelper.onGoingOrders()) {
+                    notificationMSG = " The package is being prepared .... ";
+                }
+                else{
+                    notificationMSG = " No active delivery ";
+                }
                 notificationTextview.setText(notificationMSG);
             }
             else if(mMap!=null) {
