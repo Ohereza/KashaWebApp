@@ -264,7 +264,7 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
                     }
                 }
                 catch (JSONException e) {
-                    Log.e("Error loc but error: ", e.toString());
+                    Log.e("Error: ", e.toString());
                 }
             }
 
@@ -444,8 +444,10 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
-        double[] locs = {clerkLocation.latitude,clerkLocation.longitude};
-        savedInstanceState.putDoubleArray("clerkLocation", locs);
+        if(clerkLocation!=null) {
+            double[] locs = {clerkLocation.latitude, clerkLocation.longitude};
+            savedInstanceState.putDoubleArray("clerkLocation", locs);
+        }
     }
 
     private void updatePolyline() {
@@ -472,9 +474,17 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
                         builder.include(myLocation);
                         LatLngBounds bounds = builder.build();
                         int padding = 65;
-                        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
-                        mMap.moveCamera(cu);
-                        mMap.animateCamera(cu);
+                        double distBtn = distanceBetweenPoints(clerkLocation.latitude,clerkLocation.longitude, myLocation.latitude, myLocation.longitude, "K");
+                        if(distBtn>0.16){
+                            CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+                            mMap.moveCamera(cu);
+                            mMap.animateCamera(cu);
+                        }
+                        else{
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 16));
+                            mMap.animateCamera(CameraUpdateFactory.zoomTo(16), 2000, null);
+                            mMap.setMinZoomPreference(15);
+                        }
                     }
                 });
             }
@@ -482,6 +492,31 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
         });
 
     }
+
+    ////// Calculate distance between 2 pouints
+    private static double distanceBetweenPoints(double lat1, double lon1, double lat2, double lon2, String unit) {
+        double theta = lon1 - lon2;
+        double dist = Math.sin(deg2rad(lat1)) * Math.sin(deg2rad(lat2)) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.cos(deg2rad(theta));
+        dist = Math.acos(dist);
+        dist = rad2deg(dist);
+        dist = dist * 60 * 1.1515;
+        if (unit == "K") {
+            dist = dist * 1.609344;
+        } else if (unit == "N") {
+            dist = dist * 0.8684;
+        }
+
+        return (dist);
+    }
+
+    private static double deg2rad(double deg) {
+        return (deg * Math.PI / 180.0);
+    }
+
+    private static double rad2deg(double rad) {
+        return (rad * 180 / Math.PI);
+    }
+    /////////////////////
 
     private void changeStatusToDelivering(){
         notificationMSG = "Your package is on the way";
