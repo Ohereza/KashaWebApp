@@ -271,9 +271,7 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
             public void presence(PubNub pubnub, PNPresenceEventResult presence) {
             }
         });
-        ///////////////////////
         /// End of pubnub////
-        //////////////////////
 
         return rootView;
     }
