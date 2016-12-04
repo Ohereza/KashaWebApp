@@ -187,6 +187,7 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
         mapFrag.getMapAsync(this);
 
         activeOrders = Util.getStringArrayFromColumnCursor(mydb.getAllActiveOrders(), closeCursor);
+        Toast.makeText(getActivity(),"active orders: "+activeOrders.toString(),Toast.LENGTH_LONG).show();
 
         //  PUBNUB
         PNConfiguration pnConfiguration = new PNConfiguration();
@@ -276,12 +277,24 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
 
         return rootView;
     }
+    public void updateClerkLocation(JSONObject clerkLocation){
+        Log.d("log","update clerk location");
 
-//    public void onButtonPressed(Uri uri) {
-//        if (mListener != null) {
-//            mListener.onFragmentInteraction(uri);
-//        }
-//    }
+        try {
+            String latitude = clerkLocation.getString("Lat");
+            String longitude = clerkLocation.getString("Long");
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+/*    public void onButtonPressed(Uri uri) {
+        if (mListener != null) {
+            mListener.onFragmentInteraction(uri);
+        }
+    }*/
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
