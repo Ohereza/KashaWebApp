@@ -271,7 +271,9 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
             public void presence(PubNub pubnub, PNPresenceEventResult presence) {
             }
         });
+        ///////////////////////
         /// End of pubnub////
+        //////////////////////
 
         return rootView;
     }
@@ -289,11 +291,11 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
 
     }
 
-///*    public void onButtonPressed(Uri uri) {
-//        if (mListener != null) {
-//            mListener.onFragmentInteraction(uri);
-//        }
-//    }*/
+/*    public void onButtonPressed(Uri uri) {
+        if (mListener != null) {
+            mListener.onFragmentInteraction(uri);
+        }
+    }*/
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
