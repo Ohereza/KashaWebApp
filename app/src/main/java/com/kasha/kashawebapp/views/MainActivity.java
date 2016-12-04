@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        LocationFragment locaFrag = new LocationFragment();
+        final LocationFragment locaFrag = new LocationFragment();
         getSupportFragmentManager()
                 .beginTransaction()
                 .add(locaFrag, "locaFrag")
@@ -79,7 +79,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         //set welcome tab to webview tab
-        mViewPager.setCurrentItem(viewPagerPosition);
+        //mViewPager.setCurrentItem(viewPagerPosition);
+        mViewPager.setCurrentItem(1);
 
         TabLayout mTabLayout = (TabLayout) findViewById(R.id.tab_layout);
         mTabLayout.setupWithViewPager(mViewPager);
@@ -92,9 +93,14 @@ public class MainActivity extends AppCompatActivity {
                     // refresh fragments
                     mCustomViewPagerAdapter.notifyDataSetChanged();
                     mViewPager.setCurrentItem(1);
+
+                } else if (pubnub_msg.equalsIgnoreCase("onClerkUpdates") && locaFrag != null){
+
+
                 }
             }
         };
+
     }
 
     @Override

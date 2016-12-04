@@ -29,6 +29,7 @@ import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import static com.kasha.kashawebapp.helper.Configs.PREFS_NAME;
@@ -93,6 +94,13 @@ public class MyPubnubListenerService extends IntentService {
         Intent intent = new Intent(PUBNUB_NOTIFIER);
         if(message != null)
             intent.putExtra(PUBNUB_LISTENER_MESSAGE, message);
+        broadcaster.sendBroadcast(intent);
+    }
+
+    public void sendClerkUpdates(JSONObject clerkUpdates) {
+        Intent intent = new Intent(PUBNUB_NOTIFIER);
+        if(clerkUpdates != null)
+            intent.putExtra(PUBNUB_LISTENER_MESSAGE, (Serializable) clerkUpdates);
         broadcaster.sendBroadcast(intent);
     }
 

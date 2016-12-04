@@ -269,6 +269,10 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
         return rootView;
     }
 
+    public void updateClerkLocation(String latitude, String longitute){
+        Log.d("log","test method called");
+    }
+
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
