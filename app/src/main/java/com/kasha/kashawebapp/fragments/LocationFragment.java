@@ -377,7 +377,7 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        Toast.makeText(getActivity(),"Wait .... we are looking for your location",Toast.LENGTH_LONG);
+        Toast.makeText(getActivity(),"Wait .... we are looking for your location",Toast.LENGTH_SHORT);
         mMap = googleMap;
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         mMap.getUiSettings().setZoomControlsEnabled(true);
@@ -479,8 +479,13 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                notificationTextview.setText(notificationMSG);
-                Toast.makeText(getActivity(), "Your package is on the way", Toast.LENGTH_LONG).show();
+                try {
+                    notificationTextview.setText(notificationMSG);
+                    Toast.makeText(getActivity(), "Your package is on the way", Toast.LENGTH_SHORT).show();
+                }
+                catch (Exception e){
+
+                }
             }
         });
 
@@ -488,7 +493,6 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
     }
 
     private void changeStatusToDelivered(){
-        mMap.clear();
         clerkLocation = null;
         zoomToMyLocation = true;
         notificationMSG = "Your package has been delivered, We hope to see you again soon";
@@ -499,8 +503,9 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback,
             @Override
             public void run() {
                 try {
+                    mMap.clear();
                     notificationTextview.setText(notificationMSG);
-                    Toast.makeText(getActivity(), "Your package has been delivered!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getActivity(), "Your package has been delivered!", Toast.LENGTH_SHORT).show();
                     mMap.addMarker(new MarkerOptions().position(myLocation).title("Me")).showInfoWindow();
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 15));
                     mMap.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
